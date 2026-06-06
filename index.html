@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Radio InfoBlack</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #0a0a0a;
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+    }
+
+    .logo {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+
+    .logo span {
+      color: #e63946;
+    }
+
+    .tagline {
+      font-size: 0.85rem;
+      color: #888;
+      letter-spacing: 1px;
+      margin-bottom: 60px;
+    }
+
+    .power-btn {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      border: 3px solid #333;
+      background: #111;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 0 0 rgba(230, 57, 70, 0);
+      position: relative;
+    }
+
+    .power-btn svg {
+      width: 60px;
+      height: 60px;
+      fill: #444;
+      transition: fill 0.3s ease;
+    }
+
+    .power-btn.active {
+      border-color: #e63946;
+      box-shadow: 0 0 30px rgba(230, 57, 70, 0.5), 0 0 60px rgba(230, 57, 70, 0.2);
+      animation: pulse 2s infinite;
+    }
+
+    .power-btn.active svg {
+      fill: #e63946;
+    }
+
+    @keyframes pulse {
+      0%   { box-shadow: 0 0 20px rgba(230, 57, 70, 0.5), 0 0 40px rgba(230, 57, 70, 0.2); }
+      50%  { box-shadow: 0 0 40px rgba(230, 57, 70, 0.8), 0 0 80px rgba(230, 57, 70, 0.4); }
+      100% { box-shadow: 0 0 20px rgba(230, 57, 70, 0.5), 0 0 40px rgba(230, 57, 70, 0.2); }
+    }
+
+    .status {
+      margin-top: 40px;
+      font-size: 0.95rem;
+      color: #555;
+      letter-spacing: 1px;
+      transition: color 0.3s;
+      min-height: 24px;
+    }
+
+    .status.active {
+      color: #e63946;
+    }
+
+    .countdown {
+      margin-top: 16px;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #222;
+      letter-spacing: 2px;
+      min-height: 50px;
+      transition: color 0.3s;
+    }
+
+    .countdown.active {
+      color: #fff;
+    }
+
+    .info {
+      position: fixed;
+      bottom: 30px;
+      font-size: 0.75rem;
+      color: #333;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="logo">INFO<span>BLACK</span></div>
+  <div class="tagline">PUBLICIDAD EN MOVIMIENTO</div>
+
+  <button class="power-btn" id="powerBtn" onclick="togglePower()">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/>
+    </svg>
+  </button>
+
+  <div class="status" id="status">APAGADO</div>
+  <div class="countdown" id="countdown"></div>
+
+  <div class="info">Mantén la pantalla activa para que funcione en segundo plano</div>
+
+  <audio id="ad" src="audio-1.mp3" preload="auto"></audio>
+
+  <script>
+    const INTERVAL_MS = 5 * 60 * 1000; // 5 minutos
+
+    let running = false;
+    let nextPlayAt = null;
+    let rafId = null;
+
+    const btn       = document.getElementById('powerBtn');
+    const statusEl  = document.getElementById('status');
+    const countEl   = document.getElementById('countdown');
+    const audio     = document.getElementById('ad');
+
+    function togglePower() {
+      if (running) {
+        stop();
+      } else {
+        start();
+      }
+    }
+
+    function start() {
+      running = true;
+      btn.classList.add('active');
+      statusEl.classList.add('active');
+      statusEl.textContent = 'EN VIVO';
+
+      // Reproducir inmediatamente al encender
+      playAd();
+      scheduleNext();
+      tick();
+    }
+
+    function stop() {
+      running = false;
+      btn.classList.remove('active');
+      statusEl.classList.remove('active');
+      statusEl.textContent = 'APAGADO';
+      countEl.classList.remove('active');
+      countEl.textContent = '';
+      nextPlayAt = null;
+      cancelAnimationFrame(rafId);
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
+    function scheduleNext() {
+      nextPlayAt = Date.now() + INTERVAL_MS;
+    }
+
+    function playAd() {
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
+    }
+
+    function tick() {
+      if (!running) return;
+
+      const remaining = nextPlayAt - Date.now();
+
+      if (remaining <= 0) {
+        playAd();
+        scheduleNext();
+      }
+
+      const totalSec = Math.ceil(remaining / 1000);
+      const min = Math.floor(totalSec / 60);
+      const sec = totalSec % 60;
+      countEl.classList.add('active');
+      countEl.textContent = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+
+      rafId = requestAnimationFrame(tick);
+    }
+
+    // Evitar que la pantalla se bloquee (Wake Lock API)
+    async function requestWakeLock() {
+      if ('wakeLock' in navigator) {
+        try {
+          await navigator.wakeLock.request('screen');
+        } catch (e) {}
+      }
+    }
+    requestWakeLock();
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') requestWakeLock();
+    });
+  </script>
+</body>
+</html>
