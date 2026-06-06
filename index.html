@@ -12,34 +12,89 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       background: #0a0a0a;
       font-family: 'Segoe UI', sans-serif;
       color: #fff;
+      padding: 24px 16px 40px;
     }
 
     .logo {
-      font-size: 2rem;
+      font-size: 1.6rem;
       font-weight: 800;
       letter-spacing: 2px;
-      margin-bottom: 8px;
-      color: #fff;
+      margin-bottom: 4px;
     }
-
-    .logo span {
-      color: #e63946;
-    }
+    .logo span { color: #e63946; }
 
     .tagline {
-      font-size: 0.85rem;
-      color: #888;
+      font-size: 0.75rem;
+      color: #555;
       letter-spacing: 1px;
-      margin-bottom: 60px;
+      margin-bottom: 20px;
+    }
+
+    /* URL input */
+    .yt-input-wrap {
+      width: 100%;
+      max-width: 640px;
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .yt-input-wrap input {
+      flex: 1;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 0.9rem;
+      padding: 10px 14px;
+      outline: none;
+    }
+    .yt-input-wrap input::placeholder { color: #555; }
+    .yt-input-wrap input:focus { border-color: #e63946; }
+
+    .yt-input-wrap button {
+      background: #e63946;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 10px 18px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    /* YouTube player */
+    .yt-wrap {
+      width: 100%;
+      max-width: 640px;
+      aspect-ratio: 16/9;
+      background: #111;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 28px;
+      border: 1px solid #1f1f1f;
+    }
+
+    #yt-player {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Ad controls */
+    .ad-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
     }
 
     .power-btn {
-      width: 150px;
-      height: 150px;
+      width: 110px;
+      height: 110px;
       border-radius: 50%;
       border: 3px solid #333;
       background: #111;
@@ -48,67 +103,55 @@
       align-items: center;
       justify-content: center;
       transition: all 0.3s ease;
-      box-shadow: 0 0 0 0 rgba(230, 57, 70, 0);
-      position: relative;
     }
 
     .power-btn svg {
-      width: 60px;
-      height: 60px;
+      width: 46px;
+      height: 46px;
       fill: #444;
       transition: fill 0.3s ease;
     }
 
     .power-btn.active {
       border-color: #e63946;
-      box-shadow: 0 0 30px rgba(230, 57, 70, 0.5), 0 0 60px rgba(230, 57, 70, 0.2);
+      box-shadow: 0 0 30px rgba(230,57,70,0.5), 0 0 60px rgba(230,57,70,0.2);
       animation: pulse 2s infinite;
     }
 
-    .power-btn.active svg {
-      fill: #e63946;
-    }
+    .power-btn.active svg { fill: #e63946; }
 
     @keyframes pulse {
-      0%   { box-shadow: 0 0 20px rgba(230, 57, 70, 0.5), 0 0 40px rgba(230, 57, 70, 0.2); }
-      50%  { box-shadow: 0 0 40px rgba(230, 57, 70, 0.8), 0 0 80px rgba(230, 57, 70, 0.4); }
-      100% { box-shadow: 0 0 20px rgba(230, 57, 70, 0.5), 0 0 40px rgba(230, 57, 70, 0.2); }
+      0%,100% { box-shadow: 0 0 20px rgba(230,57,70,0.5), 0 0 40px rgba(230,57,70,0.2); }
+      50%      { box-shadow: 0 0 40px rgba(230,57,70,0.8), 0 0 80px rgba(230,57,70,0.4); }
     }
 
     .status {
-      margin-top: 40px;
-      font-size: 0.95rem;
+      font-size: 0.85rem;
       color: #555;
       letter-spacing: 1px;
       transition: color 0.3s;
-      min-height: 24px;
+      min-height: 20px;
+      text-align: center;
     }
-
-    .status.active {
-      color: #e63946;
-    }
+    .status.active { color: #e63946; }
 
     .countdown {
-      margin-top: 16px;
-      font-size: 2.5rem;
+      font-size: 2.2rem;
       font-weight: 700;
       color: #222;
       letter-spacing: 2px;
-      min-height: 50px;
+      min-height: 44px;
       transition: color 0.3s;
     }
+    .countdown.active { color: #fff; }
 
-    .countdown.active {
-      color: #fff;
-    }
-
-    .info {
-      position: fixed;
-      bottom: 30px;
+    .now-playing {
       font-size: 0.75rem;
-      color: #333;
-      text-align: center;
+      color: #444;
+      min-height: 18px;
+      letter-spacing: 1px;
     }
+    .now-playing.active { color: #888; }
   </style>
 </head>
 <body>
@@ -116,36 +159,73 @@
   <div class="logo">INFO<span>BLACK</span></div>
   <div class="tagline">PUBLICIDAD EN MOVIMIENTO</div>
 
-  <button class="power-btn" id="powerBtn" onclick="togglePower()">
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/>
-    </svg>
-  </button>
+  <div class="yt-input-wrap">
+    <input type="text" id="ytUrl" placeholder="Pegá el link de YouTube (video o playlist)" />
+    <button onclick="loadYT()">Cargar</button>
+  </div>
 
-  <div class="status" id="status">APAGADO</div>
-  <div class="countdown" id="countdown"></div>
+  <div class="yt-wrap">
+    <div id="yt-player"></div>
+  </div>
 
-  <div class="info">Mantén la pantalla activa para que funcione en segundo plano</div>
+  <div class="ad-panel">
+    <button class="power-btn" id="powerBtn" onclick="togglePower()">
+      <svg viewBox="0 0 24 24"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/></svg>
+    </button>
+    <div class="status" id="status">PUBLICIDAD APAGADA</div>
+    <div class="countdown" id="countdown"></div>
+    <div class="now-playing" id="nowPlaying"></div>
+  </div>
 
   <script>
-    const INTERVAL_MS = 15 * 1000; // 15 segundos para pruebas (cambiar a 5 * 60 * 1000 para producción)
+    // ── YouTube IFrame API ──────────────────────────────────────────
+    var ytPlayer = null;
+    var ytReady  = false;
 
-    // Lista de audios
+    window.onYouTubeIframeAPIReady = function () {
+      ytPlayer = new YT.Player('yt-player', {
+        height: '100%',
+        width:  '100%',
+        videoId: 'jfKfPfyJRdk', // lofi por defecto
+        playerVars: { autoplay: 0, controls: 1, rel: 0 },
+        events: { onReady: () => { ytReady = true; } }
+      });
+    };
+
+    function loadYT() {
+      const raw = document.getElementById('ytUrl').value.trim();
+      if (!raw || !ytReady) return;
+
+      // Extraer video ID o playlist ID
+      const urlObj = new URL(raw);
+      const list   = urlObj.searchParams.get('list');
+      const v      = urlObj.searchParams.get('v') ||
+                     raw.match(/youtu\.be\/([^?&]+)/)?.[1];
+
+      if (list) {
+        ytPlayer.loadPlaylist({ list, listType: 'playlist', index: 0 });
+      } else if (v) {
+        ytPlayer.loadVideoById(v);
+      }
+    }
+
+    // ── Ad logic ───────────────────────────────────────────────────
+    const INTERVAL_MS  = 15 * 1000; // 15s para pruebas → cambiar a 5 * 60 * 1000
+    const DUCK_VOLUME  = 10;         // volumen YouTube durante el ad (%)
     const TRACKS = ['audio-1.mp3', 'audio-2.mp3', 'audio-3.mp3'];
 
     let running = false;
     let nextPlayAt = null;
     let rafId = null;
-    let queue = [];       // cola mezclada
-    let currentIndex = 0; // posición en la cola
+    let queue = [];
+    let queueIndex = 0;
 
-    const btn      = document.getElementById('powerBtn');
-    const statusEl = document.getElementById('status');
-    const countEl  = document.getElementById('countdown');
-    const audio    = new Audio();
-    audio.preload  = 'auto';
+    const btn       = document.getElementById('powerBtn');
+    const statusEl  = document.getElementById('status');
+    const countEl   = document.getElementById('countdown');
+    const nowEl     = document.getElementById('nowPlaying');
+    const adAudio   = new Audio();
 
-    // Fisher-Yates shuffle
     function shuffle(arr) {
       const a = [...arr];
       for (let i = a.length - 1; i > 0; i--) {
@@ -156,13 +236,12 @@
     }
 
     function nextTrack() {
-      if (currentIndex >= queue.length) {
-        // Se acabó el ciclo: volver a mezclar garantizando que no empiece igual
+      if (queueIndex >= queue.length) {
         const last = queue[queue.length - 1];
         do { queue = shuffle(TRACKS); } while (queue[0] === last);
-        currentIndex = 0;
+        queueIndex = 0;
       }
-      return queue[currentIndex++];
+      return queue[queueIndex++];
     }
 
     function togglePower() {
@@ -172,10 +251,10 @@
     function start() {
       running = true;
       queue = shuffle(TRACKS);
-      currentIndex = 0;
+      queueIndex = 0;
       btn.classList.add('active');
       statusEl.classList.add('active');
-      statusEl.textContent = 'EN VIVO';
+      statusEl.textContent = 'PUBLICIDAD ACTIVA';
       playAd();
       scheduleNext();
       tick();
@@ -185,51 +264,63 @@
       running = false;
       btn.classList.remove('active');
       statusEl.classList.remove('active');
-      statusEl.textContent = 'APAGADO';
+      statusEl.textContent = 'PUBLICIDAD APAGADA';
       countEl.classList.remove('active');
       countEl.textContent = '';
+      nowEl.classList.remove('active');
+      nowEl.textContent = '';
       nextPlayAt = null;
       cancelAnimationFrame(rafId);
-      audio.pause();
-      audio.currentTime = 0;
+      adAudio.pause();
+      adAudio.currentTime = 0;
+      restoreYT();
     }
 
     function scheduleNext() {
       nextPlayAt = Date.now() + INTERVAL_MS;
     }
 
+    function duckYT() {
+      if (ytReady && ytPlayer && ytPlayer.setVolume) ytPlayer.setVolume(DUCK_VOLUME);
+    }
+
+    function restoreYT() {
+      if (ytReady && ytPlayer && ytPlayer.setVolume) ytPlayer.setVolume(100);
+    }
+
     function playAd() {
       const track = nextTrack();
-      audio.src = track;
-      audio.currentTime = 0;
-      audio.play().catch(() => {});
+      adAudio.src = track;
+      adAudio.currentTime = 0;
+      duckYT();
+      nowEl.classList.add('active');
+      nowEl.textContent = '▶ ' + track;
+      adAudio.play().catch(() => {});
+      adAudio.onended = () => {
+        restoreYT();
+        nowEl.textContent = '';
+      };
     }
 
     function tick() {
       if (!running) return;
-
       const remaining = nextPlayAt - Date.now();
-
       if (remaining <= 0) {
         playAd();
         scheduleNext();
       }
-
       const totalSec = Math.ceil(remaining / 1000);
       const min = Math.floor(totalSec / 60);
       const sec = totalSec % 60;
       countEl.classList.add('active');
-      countEl.textContent = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
-
+      countEl.textContent = `${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
       rafId = requestAnimationFrame(tick);
     }
 
-    // Evitar que la pantalla se bloquee (Wake Lock API)
+    // Wake Lock
     async function requestWakeLock() {
       if ('wakeLock' in navigator) {
-        try {
-          await navigator.wakeLock.request('screen');
-        } catch (e) {}
+        try { await navigator.wakeLock.request('screen'); } catch(e) {}
       }
     }
     requestWakeLock();
@@ -237,5 +328,7 @@
       if (document.visibilityState === 'visible') requestWakeLock();
     });
   </script>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
