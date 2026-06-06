@@ -127,35 +127,55 @@
 
   <div class="info">Mantén la pantalla activa para que funcione en segundo plano</div>
 
-  <audio id="ad" src="audio-1.mp3" preload="auto"></audio>
-
   <script>
-    const INTERVAL_MS = 5 * 60 * 1000; // 5 minutos
+    const INTERVAL_MS = 5 * 60 * 1000;
+
+    // Lista de audios
+    const TRACKS = ['audio-1.mp3', 'audio-2.mp3', 'audio-3.mp3'];
 
     let running = false;
     let nextPlayAt = null;
     let rafId = null;
+    let queue = [];       // cola mezclada
+    let currentIndex = 0; // posición en la cola
 
-    const btn       = document.getElementById('powerBtn');
-    const statusEl  = document.getElementById('status');
-    const countEl   = document.getElementById('countdown');
-    const audio     = document.getElementById('ad');
+    const btn      = document.getElementById('powerBtn');
+    const statusEl = document.getElementById('status');
+    const countEl  = document.getElementById('countdown');
+    const audio    = new Audio();
+    audio.preload  = 'auto';
+
+    // Fisher-Yates shuffle
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function nextTrack() {
+      if (currentIndex >= queue.length) {
+        // Se acabó el ciclo: volver a mezclar garantizando que no empiece igual
+        const last = queue[queue.length - 1];
+        do { queue = shuffle(TRACKS); } while (queue[0] === last);
+        currentIndex = 0;
+      }
+      return queue[currentIndex++];
+    }
 
     function togglePower() {
-      if (running) {
-        stop();
-      } else {
-        start();
-      }
+      running ? stop() : start();
     }
 
     function start() {
       running = true;
+      queue = shuffle(TRACKS);
+      currentIndex = 0;
       btn.classList.add('active');
       statusEl.classList.add('active');
       statusEl.textContent = 'EN VIVO';
-
-      // Reproducir inmediatamente al encender
       playAd();
       scheduleNext();
       tick();
@@ -179,6 +199,8 @@
     }
 
     function playAd() {
+      const track = nextTrack();
+      audio.src = track;
       audio.currentTime = 0;
       audio.play().catch(() => {});
     }
