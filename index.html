@@ -1,233 +1,533 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Radio InfoBlack</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radio InfoBlack</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --border: #2a2a3a;
+    --accent: #00ff88;
+    --accent2: #ff3366;
+    --text: #e8e8f0;
+    --muted: #5a5a7a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+    background-image:
+      radial-gradient(ellipse at 20% 10%, #00ff8815 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 90%, #ff336615 0%, transparent 50%);
+  }
+  header {
+    width: 100%; max-width: 480px;
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 28px;
+  }
+  .logo-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent); animation: blink 1.5s infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)} }
+  header h1 { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:3px; color:var(--accent); }
+  header span { font-family:'Space Mono',monospace; font-size:10px; color:var(--muted); margin-left:auto; }
 
-    body {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: #0a0a0a;
-      font-family: 'Segoe UI', sans-serif;
-      color: #fff;
-      padding: 24px 16px;
-    }
+  /* RADIO SELECTOR */
+  .radio-selector {
+    width: 100%; max-width: 480px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 20px 24px; margin-bottom: 16px;
+  }
+  .section-label {
+    font-family: 'Space Mono', monospace; font-size: 10px;
+    letter-spacing: 2px; color: var(--muted); text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .radio-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  .radio-btn {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; background: var(--card);
+    border: 1px solid var(--border); border-radius: 12px;
+    cursor: pointer; transition: border-color .2s, background .2s;
+    text-align: left; width: 100%;
+  }
+  .radio-btn:hover { border-color: var(--accent); background: #1a2a20; }
+  .radio-btn.active { border-color: var(--accent); background: #0d1f17; }
+  .radio-icon { font-size: 20px; flex-shrink: 0; }
+  .radio-info { flex: 1; }
+  .radio-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .radio-btn.active .radio-name { color: var(--accent); }
+  .radio-freq { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); }
+  .radio-check { color: var(--accent); font-size: 16px; opacity: 0; }
+  .radio-btn.active .radio-check { opacity: 1; }
 
-    .logo {
-      font-size: 2rem;
-      font-weight: 800;
-      letter-spacing: 2px;
-      margin-bottom: 6px;
-    }
-    .logo span { color: #e63946; }
+  .custom-url-wrap { display: flex; flex-direction: column; gap: 6px; }
+  .inp-label { font-size: 10px; color: var(--muted); font-family: 'Space Mono', monospace; letter-spacing: 1px; }
+  .inp-row { display: flex; gap: 8px; }
+  .inp {
+    flex: 1; background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 14px; color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 12px; outline: none;
+    transition: border-color .2s;
+  }
+  .inp:focus { border-color: var(--accent); }
+  .inp::placeholder { color: var(--muted); }
+  .btn-sm {
+    padding: 10px 16px; background: var(--accent); color: var(--bg);
+    border: none; border-radius: 10px; font-family: 'Space Mono', monospace;
+    font-size: 11px; cursor: pointer; font-weight: 700; white-space: nowrap;
+    transition: background .2s;
+  }
+  .btn-sm:hover { background: #00ffaa; }
 
-    .tagline {
-      font-size: 0.8rem;
-      color: #555;
-      letter-spacing: 1px;
-      margin-bottom: 60px;
-    }
+  /* PLAYER */
+  .player {
+    width: 100%; max-width: 480px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 24px; margin-bottom: 16px;
+    position: relative; overflow: hidden;
+  }
+  .player::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+  .now-playing-label {
+    font-family: 'Space Mono', monospace; font-size: 9px;
+    letter-spacing: 3px; color: var(--muted); margin-bottom: 12px;
+  }
+  .track-title {
+    font-family: 'Bebas Neue', sans-serif; font-size: 30px;
+    letter-spacing: 1px; color: var(--text); line-height: 1;
+    margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .track-sub { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
 
-    .power-btn {
-      width: 140px;
-      height: 140px;
-      border-radius: 50%;
-      border: 3px solid #333;
-      background: #111;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s ease;
-    }
+  .waveform { display: flex; align-items: center; gap: 3px; height: 32px; margin-bottom: 20px; }
+  .waveform-bar { width: 3px; background: var(--accent); border-radius: 2px; opacity: .2; }
+  .waveform-bar.active { opacity: 1; animation: wave .8s ease-in-out infinite; }
+  @keyframes wave { 0%,100%{transform:scaleY(.3)} 50%{transform:scaleY(1)} }
 
-    .power-btn svg {
-      width: 56px;
-      height: 56px;
-      fill: #444;
-      transition: fill 0.3s ease;
-    }
+  .controls { display: flex; align-items: center; justify-content: center; gap: 24px; }
+  .btn-play {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: var(--accent); color: var(--bg); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .15s, background .2s;
+    box-shadow: 0 0 24px #00ff8850;
+  }
+  .btn-play:hover { transform: scale(1.08); background: #00ffaa; }
+  .btn-play:active { transform: scale(.96); }
 
-    .power-btn.active {
-      border-color: #e63946;
-      animation: pulse 2s infinite;
-    }
-    .power-btn.active svg { fill: #e63946; }
+  /* AD RING */
+  .ad-ring-wrap { display: none; flex-direction: column; align-items: center; gap: 6px; }
+  .ad-ring-wrap.visible { display: flex; }
+  .ad-ring-label { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 2px; color: var(--muted); }
+  .ad-ring { width: 44px; height: 44px; position: relative; }
+  .ad-ring svg { transform: rotate(-90deg); }
+  .ad-ring-bg { fill: none; stroke: var(--border); stroke-width: 3; }
+  .ad-ring-fill { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 113; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; }
+  .ad-ring-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Space Mono', monospace; font-size: 12px; color: var(--accent); font-weight: 700; }
 
-    @keyframes pulse {
-      0%,100% { box-shadow: 0 0 20px rgba(230,57,70,0.5), 0 0 40px rgba(230,57,70,0.2); }
-      50%      { box-shadow: 0 0 40px rgba(230,57,70,0.8), 0 0 80px rgba(230,57,70,0.4); }
-    }
+  /* AD BANNER */
+  .ad-overlay {
+    display: none; width: 100%; max-width: 480px;
+    background: #0d1f17; border: 1px solid var(--accent);
+    border-radius: 20px; padding: 20px 24px; margin-bottom: 16px;
+    position: relative; overflow: hidden;
+  }
+  .ad-overlay.visible { display: block; animation: fadeIn .4s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+  .ad-overlay::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--accent); }
+  .ad-tag { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 3px; color: var(--accent); margin-bottom: 8px; }
+  .ad-brand { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 2px; color: var(--accent); margin-bottom: 6px; }
+  .ad-text { font-size: 14px; color: var(--text); line-height: 1.5; margin-bottom: 14px; }
+  .ad-text strong { color: var(--accent); }
+  .ad-url { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent); }
+  .ad-skip { position: absolute; top: 16px; right: 20px; font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); }
+  .ad-skip span { color: var(--accent); font-weight: 700; }
 
-    .status {
-      margin-top: 32px;
-      font-size: 0.9rem;
-      color: #555;
-      letter-spacing: 2px;
-      transition: color 0.3s;
-      min-height: 22px;
-    }
-    .status.active { color: #e63946; }
+  /* WAVEFORM AD */
+  .ad-wave { display: flex; align-items: center; gap: 3px; height: 20px; margin-top: 14px; }
+  .ad-wave-bar { width: 3px; background: var(--accent); border-radius: 2px; opacity: 0; }
+  .ad-wave-bar.on { opacity: 1; animation: wave .6s ease-in-out infinite; }
 
-    .countdown {
-      margin-top: 12px;
-      font-size: 3rem;
-      font-weight: 700;
-      color: #1a1a1a;
-      letter-spacing: 3px;
-      min-height: 60px;
-      transition: color 0.3s;
-    }
-    .countdown.active { color: #fff; }
+  /* AD INTERVAL */
+  .ad-setting {
+    width: 100%; max-width: 480px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 16px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .ad-setting-label { font-size: 13px; color: var(--muted); }
+  .ad-setting select {
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--text); border-radius: 8px; padding: 8px 12px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; cursor: pointer;
+  }
 
-    .now-playing {
-      margin-top: 10px;
-      font-size: 0.75rem;
-      color: #444;
-      letter-spacing: 1px;
-      min-height: 18px;
-      transition: color 0.3s;
-    }
-    .now-playing.active { color: #888; }
-
-    .tip {
-      position: fixed;
-      bottom: 24px;
-      left: 0; right: 0;
-      text-align: center;
-      font-size: 0.7rem;
-      color: #2a2a2a;
-      padding: 0 20px;
-      line-height: 1.6;
-    }
-  </style>
+  svg { display: block; }
+</style>
 </head>
 <body>
 
-  <div class="logo">INFO<span>BLACK</span></div>
-  <div class="tagline">PUBLICIDAD EN MOVIMIENTO</div>
+<header>
+  <div class="logo-dot"></div>
+  <h1>RADIO INFOBLACK</h1>
+  <span>LINARES · VII REGIÓN</span>
+</header>
 
-  <button class="power-btn" id="powerBtn" onclick="togglePower()">
-    <svg viewBox="0 0 24 24"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/></svg>
-  </button>
-
-  <div class="status" id="status">APAGADO</div>
-  <div class="countdown" id="countdown"></div>
-  <div class="now-playing" id="nowPlaying"></div>
-
-  <div class="tip">
-    Abrí YouTube en otra pestaña de Chrome y dejá esta activa.<br>
-    Ambas suenan al mismo tiempo.
+<!-- SELECTOR DE RADIO -->
+<div class="radio-selector">
+  <div class="section-label">📻 Elige tu radio</div>
+  <div class="radio-list" id="radioList">
+    <button class="radio-btn active" data-url="https://mdstrm.com/audio/637f68ddce4b1208597d8a86/icecast.audio" data-name="Radio Carolina">
+      <span class="radio-icon">🎵</span>
+      <div class="radio-info">
+        <div class="radio-name">Radio Carolina</div>
+        <div class="radio-freq">99.3 FM · Pop, Hip-Hop, Reggaetón</div>
+      </div>
+      <span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-url="https://playerservices.streamtheworld.com/api/livestream-redirect/COOPERATIVA.mp3" data-name="Radio Cooperativa">
+      <span class="radio-icon">📰</span>
+      <div class="radio-info">
+        <div class="radio-name">Radio Cooperativa</div>
+        <div class="radio-freq">900 AM · Noticias y actualidad</div>
+      </div>
+      <span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-url="https://playerservices.streamtheworld.com/api/livestream-redirect/BIOBIO.mp3" data-name="Radio Bio Bio">
+      <span class="radio-icon">🗞️</span>
+      <div class="radio-info">
+        <div class="radio-name">Radio Bio Bio</div>
+        <div class="radio-freq">92.1 FM · Noticias</div>
+      </div>
+      <span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-url="https://playerservices.streamtheworld.com/api/livestream-redirect/ROCKPOP.mp3" data-name="Rock & Pop">
+      <span class="radio-icon">🎸</span>
+      <div class="radio-info">
+        <div class="radio-name">Rock & Pop</div>
+        <div class="radio-freq">94.1 FM · Rock</div>
+      </div>
+      <span class="radio-check">✓</span>
+    </button>
   </div>
 
-  <script>
-    const INTERVAL_MS = 15 * 1000; // pruebas → producción: 5 * 60 * 1000
-    const TRACKS = ['audio-1.mp3', 'audio-2.mp3', 'audio-3.mp3'];
+  <div class="custom-url-wrap">
+    <span class="inp-label">O pega una URL de stream personalizada</span>
+    <div class="inp-row">
+      <input class="inp" type="url" id="customUrl" placeholder="https://stream.radio.cl/live.mp3">
+      <button class="btn-sm" id="btnCustom">USAR</button>
+    </div>
+  </div>
+</div>
 
-    let running = false;
-    let nextPlayAt = null;
-    let rafId = null;
-    let queue = [];
-    let queueIndex = 0;
+<!-- PLAYER -->
+<div class="player">
+  <div class="now-playing-label" id="liveLabel">● EN VIVO</div>
+  <div class="track-title" id="trackTitle">Radio Carolina</div>
+  <div class="track-sub" id="trackSub">Presiona play para comenzar</div>
 
-    const btn      = document.getElementById('powerBtn');
-    const statusEl = document.getElementById('status');
-    const countEl  = document.getElementById('countdown');
-    const nowEl    = document.getElementById('nowPlaying');
-    const adAudio  = new Audio();
+  <div class="waveform" id="waveform"></div>
 
-    function shuffle(arr) {
-      const a = [...arr];
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
+  <div class="controls">
+    <div class="ad-ring-wrap" id="adRingWrap">
+      <div class="ad-ring">
+        <svg width="44" height="44" viewBox="0 0 44 44">
+          <circle class="ad-ring-bg" cx="22" cy="22" r="18"/>
+          <circle class="ad-ring-fill" id="adRingFill" cx="22" cy="22" r="18"/>
+        </svg>
+        <div class="ad-ring-num" id="adRingNum">—</div>
+      </div>
+      <span class="ad-ring-label">PUBLI</span>
+    </div>
+
+    <button class="btn-play" id="btnPlay">
+      <svg id="iconPlay" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M8 5v14l11-7z"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<!-- BANNER PUBLICIDAD -->
+<div class="ad-overlay" id="adOverlay">
+  <div class="ad-tag">📢 PUBLICIDAD</div>
+  <div class="ad-brand">InfoBl@ck</div>
+  <div class="ad-text" id="adText"></div>
+  <a href="https://infoblack.cl" target="_blank" class="ad-url">infoblack.cl</a>
+  <div class="ad-skip">Vuelve la radio en <span id="adSkipNum">—</span>s</div>
+  <div class="ad-wave" id="adWave"></div>
+</div>
+
+<!-- INTERVALO -->
+<div class="ad-setting">
+  <span class="ad-setting-label">🔊 Publicidad cada</span>
+  <select id="adInterval">
+    <option value="0.25">15 seg (prueba)</option>
+    <option value="5">5 min</option>
+    <option value="10" selected>10 min</option>
+    <option value="15">15 min</option>
+    <option value="20">20 min</option>
+    <option value="30">30 min</option>
+  </select>
+</div>
+
+<!-- Audio radio y audio publicidad son elementos separados -->
+<audio id="radioEl"></audio>
+<audio id="adAudioEl" preload="auto"></audio>
+
+<script>
+const radioEl     = document.getElementById('radioEl');
+const adAudioEl   = document.getElementById('adAudioEl');
+const btnPlay     = document.getElementById('btnPlay');
+const iconPlay    = document.getElementById('iconPlay');
+const trackTitle  = document.getElementById('trackTitle');
+const trackSub    = document.getElementById('trackSub');
+const waveformEl  = document.getElementById('waveform');
+const adOverlay   = document.getElementById('adOverlay');
+const adText      = document.getElementById('adText');
+const adSkipNum   = document.getElementById('adSkipNum');
+const adRingWrap  = document.getElementById('adRingWrap');
+const adRingFill  = document.getElementById('adRingFill');
+const adRingNum   = document.getElementById('adRingNum');
+const adInterval  = document.getElementById('adInterval');
+const radioList   = document.getElementById('radioList');
+const btnCustom   = document.getElementById('btnCustom');
+const customUrl   = document.getElementById('customUrl');
+const adWaveEl    = document.getElementById('adWave');
+
+let isPlaying    = false;
+let adActive     = false;
+let adIdx        = 0;
+let trackIdx     = 0;
+let ringId       = null;
+let ringSeconds  = 0;
+let ringTotal    = 0;
+
+let currentUrl   = 'https://mdstrm.com/audio/637f68ddce4b1208597d8a86/icecast.audio';
+let currentName  = 'Radio Carolina';
+
+// Audios de publicidad (aleatorio sin repetir)
+const TRACKS = ['audio-1.mp3', 'audio-2.mp3', 'audio-3.mp3'];
+let queue = [], queueIdx = 0;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function nextTrack() {
+  if (queueIdx >= queue.length) {
+    const last = queue[queue.length - 1];
+    do { queue = shuffle(TRACKS); } while (queue[0] === last);
+    queueIdx = 0;
+  }
+  return queue[queueIdx++];
+}
+
+// Textos del banner (visual)
+const adTexts = [
+  '¿Tu negocio no aparece en Google? En <strong>InfoBlack</strong> te creamos el sitio web y te ponemos en el mapa en menos de una semana. Desde <strong>$50.000</strong>, sin letra chica.',
+  'Cada día sin página web es un cliente que se va donde la competencia. <strong>InfoBlack</strong> te pone en internet esta semana.',
+  'Soy Willson, de <strong>InfoBlack</strong>, Linares. Sitio web, Google Maps y redes sociales. Todo en una semana, con precio claro.'
+];
+
+// Waveform radio
+for (let i = 0; i < 36; i++) {
+  const b = document.createElement('div');
+  b.className = 'waveform-bar';
+  b.style.height = (Math.random() * 26 + 4) + 'px';
+  b.style.animationDelay = (i * 0.04) + 's';
+  waveformEl.appendChild(b);
+}
+
+// Waveform ad
+for (let i = 0; i < 20; i++) {
+  const b = document.createElement('div');
+  b.className = 'ad-wave-bar';
+  b.style.height = (Math.random() * 14 + 4) + 'px';
+  b.style.animationDelay = (i * 0.05) + 's';
+  adWaveEl.appendChild(b);
+}
+
+function setWave(on) {
+  document.querySelectorAll('.waveform-bar').forEach(b =>
+    on ? b.classList.add('active') : b.classList.remove('active'));
+}
+function setAdWave(on) {
+  document.querySelectorAll('.ad-wave-bar').forEach(b =>
+    on ? b.classList.add('on') : b.classList.remove('on'));
+}
+function setIcon(playing) {
+  iconPlay.innerHTML = playing
+    ? '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'
+    : '<path d="M8 5v14l11-7z"/>';
+}
+
+// ── Ring countdown ──────────────────────────────────────────────
+function startRing() {
+  const mins = parseFloat(adInterval.value);
+  ringTotal = Math.round(mins * 60);
+  ringSeconds = ringTotal;
+  adRingWrap.classList.add('visible');
+  updateRing();
+  ringId = setInterval(() => {
+    ringSeconds--;
+    updateRing();
+    if (ringSeconds <= 0) { clearInterval(ringId); triggerAd(); }
+  }, 1000);
+}
+function stopRing() {
+  clearInterval(ringId);
+  adRingWrap.classList.remove('visible');
+}
+function updateRing() {
+  const pct = ringSeconds / ringTotal;
+  adRingFill.style.strokeDashoffset = 113 * (1 - pct);
+  const m = Math.floor(ringSeconds / 60);
+  const s = String(ringSeconds % 60).padStart(2, '0');
+  adRingNum.textContent = m > 0 ? m + 'm' : s + 's';
+}
+
+// ── Publicidad ──────────────────────────────────────────────────
+function triggerAd() {
+  adActive = true;
+
+  // Pausar radio
+  radioEl.pause();
+  setWave(false);
+
+  // Mostrar banner visual
+  adText.innerHTML = adTexts[adIdx++ % adTexts.length];
+  adOverlay.classList.add('visible');
+  setAdWave(true);
+
+  // Reproducir audio de publicidad
+  const track = nextTrack();
+  adAudioEl.src = track;
+  adAudioEl.currentTime = 0;
+  adAudioEl.play().catch(() => {});
+
+  // Contador visual en banner
+  let countdown = 0;
+  adSkipNum.textContent = '...';
+
+  // Esperar a que el audio cargue para saber su duración
+  adAudioEl.onloadedmetadata = () => {
+    countdown = Math.ceil(adAudioEl.duration);
+    adSkipNum.textContent = countdown;
+    const t = setInterval(() => {
+      countdown--;
+      adSkipNum.textContent = countdown;
+      if (countdown <= 0) clearInterval(t);
+    }, 1000);
+  };
+
+  // Cuando termina el audio, volver a la radio
+  adAudioEl.onended = () => {
+    setAdWave(false);
+    adOverlay.classList.remove('visible');
+    adActive = false;
+    if (isPlaying) {
+      radioEl.play().catch(() => {});
+      setWave(true);
+      startRing();
     }
+  };
+}
 
-    function nextTrack() {
-      if (queueIndex >= queue.length) {
-        const last = queue[queue.length - 1];
-        do { queue = shuffle(TRACKS); } while (queue[0] === last);
-        queueIndex = 0;
-      }
-      return queue[queueIndex++];
-    }
+// ── Radio play/pause ────────────────────────────────────────────
+function play() {
+  radioEl.src = currentUrl;
+  radioEl.play().then(() => {
+    isPlaying = true;
+    setIcon(true);
+    setWave(true);
+    trackSub.textContent = '🔴 En vivo';
+    stopRing();
+    startRing();
+    // Pre-cargar primer track de publicidad
+    queue = shuffle(TRACKS); queueIdx = 0;
+    adAudioEl.src = queue[0];
+  }).catch(() => {
+    trackSub.textContent = '⚠ No se pudo conectar al stream';
+  });
+}
 
-    function togglePower() {
-      running ? stop() : start();
-    }
+function pause() {
+  radioEl.pause();
+  isPlaying = false;
+  setIcon(false);
+  setWave(false);
+  trackSub.textContent = 'Pausado';
+  stopRing();
+}
 
-    function start() {
-      running = true;
-      queue = shuffle(TRACKS);
-      queueIndex = 0;
-      btn.classList.add('active');
-      statusEl.classList.add('active');
-      statusEl.textContent = 'EN VIVO';
-      playAd();
-      scheduleNext();
-      tick();
-    }
+btnPlay.addEventListener('click', () => {
+  if (adActive) return;
+  isPlaying ? pause() : play();
+});
 
-    function stop() {
-      running = false;
-      btn.classList.remove('active');
-      statusEl.classList.remove('active');
-      statusEl.textContent = 'APAGADO';
-      countEl.classList.remove('active');
-      countEl.textContent = '';
-      nowEl.classList.remove('active');
-      nowEl.textContent = '';
-      nextPlayAt = null;
-      cancelAnimationFrame(rafId);
-      adAudio.pause();
-      adAudio.currentTime = 0;
-    }
+// Selección de radio
+radioList.querySelectorAll('.radio-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    radioList.querySelectorAll('.radio-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentUrl  = btn.dataset.url;
+    currentName = btn.dataset.name;
+    trackTitle.textContent = currentName;
+    trackSub.textContent   = 'Presiona play para comenzar';
+    if (isPlaying) { pause(); setTimeout(play, 300); }
+  });
+});
 
-    function scheduleNext() {
-      nextPlayAt = Date.now() + INTERVAL_MS;
-    }
+// URL personalizada
+btnCustom.addEventListener('click', () => {
+  const url = customUrl.value.trim();
+  if (!url) return;
+  radioList.querySelectorAll('.radio-btn').forEach(b => b.classList.remove('active'));
+  currentUrl  = url;
+  currentName = 'Stream personalizado';
+  trackTitle.textContent = currentName;
+  trackSub.textContent   = 'Presiona play para comenzar';
+  if (isPlaying) { pause(); setTimeout(play, 300); }
+});
+customUrl.addEventListener('keydown', e => { if (e.key === 'Enter') btnCustom.click(); });
 
-    function playAd() {
-      const track = nextTrack();
-      adAudio.src = track;
-      adAudio.currentTime = 0;
-      adAudio.play().catch(() => {});
-      nowEl.classList.add('active');
-      nowEl.textContent = '▶ ' + track;
-      adAudio.onended = () => {
-        nowEl.textContent = '';
-        nowEl.classList.remove('active');
-      };
-    }
+// Reconectar si se corta el stream
+radioEl.addEventListener('error', () => {
+  if (isPlaying && !adActive) {
+    trackSub.textContent = '⚠ Reconectando...';
+    setTimeout(play, 3000);
+  }
+});
 
-    function tick() {
-      if (!running) return;
-      const remaining = nextPlayAt - Date.now();
-      if (remaining <= 0) { playAd(); scheduleNext(); }
-      const s = Math.ceil(remaining / 1000);
-      const m = Math.floor(s / 60);
-      countEl.classList.add('active');
-      countEl.textContent = `${String(m).padStart(2,'0')}:${String(s % 60).padStart(2,'0')}`;
-      rafId = requestAnimationFrame(tick);
-    }
-
-    async function requestWakeLock() {
-      if ('wakeLock' in navigator) {
-        try { await navigator.wakeLock.request('screen'); } catch(e) {}
-      }
-    }
-    requestWakeLock();
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') requestWakeLock();
-    });
-  </script>
+// Wake Lock (evitar que la pantalla se duerma)
+async function requestWakeLock() {
+  if ('wakeLock' in navigator) {
+    try { await navigator.wakeLock.request('screen'); } catch(e) {}
+  }
+}
+requestWakeLock();
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') requestWakeLock();
+});
+</script>
 </body>
 </html>
