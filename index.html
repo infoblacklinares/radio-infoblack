@@ -747,8 +747,8 @@ function initRadioButtons() {
       currentUrl  = btn.dataset.url;
       currentName = btn.dataset.name;
       trackTitle.textContent = currentName;
-      trackSub.textContent   = 'Presiona play para comenzar';
-      if (isPlaying) { pause(); setTimeout(play, 300); }
+      pause();
+      setTimeout(play, 300);
     });
   });
 }
