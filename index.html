@@ -54,7 +54,10 @@
     letter-spacing: 2px; color: var(--muted); text-transform: uppercase;
     margin-bottom: 14px;
   }
-  .radio-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  .radio-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; max-height: 380px; overflow-y: auto; padding-right: 4px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+  .radio-list::-webkit-scrollbar { width: 4px; }
+  .radio-list::-webkit-scrollbar-track { background: transparent; }
+  .radio-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
   .radio-btn {
     display: flex; align-items: center; gap: 12px;
     padding: 12px 16px; background: var(--card);
@@ -310,6 +313,121 @@
         <div class="radio-name">World Hits Urban</div>
         <div class="radio-freq">Hip-hop, Reggaetón, Urban</div>
       </div>
+      <span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-url="https://stream.zeno.fm/ufobv2rfkrwuv" data-name="Radio Latino 24h">
+      <span class="radio-icon">🌎</span>
+      <div class="radio-info"><div class="radio-name">Radio Latino 24h</div><div class="radio-freq">Latino non-stop</div></div>
+      <span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-url="https://stream.zeno.fm/upclb6bjbkuuv" data-name="WeedRadio Chilensis">
+      <span class="radio-icon">🍃</span>
+      <div class="radio-info"><div class="radio-name">WeedRadio Chilensis</div><div class="radio-freq">Alternativa chilena</div></div>
+      <span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-url="https://stream.zeno.fm/k8yuexp35k0uv" data-name="Viejitas Pero Bonitas">
+      <span class="radio-icon">🎙️</span>
+      <div class="radio-info"><div class="radio-name">Viejitas Pero Bonitas</div><div class="radio-freq">Clásicos de siempre</div></div>
+      <span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-url="https://stream.zeno.fm/p5sbzmb7miduv" data-name="Cumbias Sonideras">
+      <span class="radio-icon">🪗</span>
+      <div class="radio-info"><div class="radio-name">Cumbias Sonideras</div><div class="radio-freq">Cumbia mexicana</div></div>
+      <span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-url="https://stream.zeno.fm/ut46b6drneruv" data-name="Cumbia Radio">
+      <span class="radio-icon">💃</span>
+      <div class="radio-info"><div class="radio-name">Cumbia Radio</div><div class="radio-freq">Cumbia non-stop</div></div>
+      <span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-url="https://stream.zeno.fm/ux9p55q8qeruv" data-name="Romántica Radio">
+      <span class="radio-icon">💕</span>
+      <div class="radio-info"><div class="radio-name">Romántica Radio</div><div class="radio-freq">Baladas y romanticas</div></div>
+      <span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-url="https://stream.zeno.fm/gu8g4kqpn3quv" data-name="Funk Brasil">
+      <span class="radio-icon">🇧🇷</span>
+      <div class="radio-info"><div class="radio-name">Funk Brasil</div><div class="radio-freq">Funk carioca</div></div>
+      <span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-url="https://stream.zeno.fm/hf24gpx2p0quv" data-name="Capital del Reggaetón">
+      <span class="radio-icon">🔥</span>
+      <div class="radio-info"><div class="radio-name">Capital del Reggaetón</div><div class="radio-freq">Reggaetón 24/7</div></div>
+      <span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-url="https://stream.zeno.fm/3m0kdgcpq18uv" data-name="Reggaetón Éxitos">
+      <span class="radio-icon">🎤</span>
+      <div class="radio-info"><div class="radio-name">Reggaetón Éxitos</div><div class="radio-freq">Éxitos de hoy</div></div>
+      <span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-url="https://stream.zeno.fm/q6an2y1t0nhvv" data-name="Radio Discotheque Chile">
+      <span class="radio-icon">🪩</span>
+      <div class="radio-info"><div class="radio-name">Radio Discotheque Chile</div><div class="radio-freq">Electro y dance</div></div>
+      <span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-url="https://stream.zeno.fm/f2h4o9slkiruv" data-name="Reggaetón Viejo">
+      <span class="radio-icon">📼</span>
+      <div class="radio-info"><div class="radio-name">Reggaetón Viejo</div><div class="radio-freq">Old school</div></div>
+      <span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-url="https://stream.zeno.fm/n6cgg1q8zs8uv" data-name="Radio La Rumba Latina">
+      <span class="radio-icon">🥁</span>
+      <div class="radio-info"><div class="radio-name">Radio La Rumba Latina</div><div class="radio-freq">Salsa y latina</div></div>
+      <span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-url="https://stream.zeno.fm/0zwpepx0bfhvv" data-name="Reggaetón Old School">
+      <span class="radio-icon">🏆</span>
+      <div class="radio-info"><div class="radio-name">Reggaetón Old School</div><div class="radio-freq">Clásicos del género</div></div>
+      <span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-url="https://stream.zeno.fm/vx22zfx741zuv" data-name="Radio Prendida">
+      <span class="radio-icon">⚡</span>
+      <div class="radio-info"><div class="radio-name">Radio Prendida</div><div class="radio-freq">Música variada</div></div>
+      <span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-url="https://stream.zeno.fm/1siatybgg7otv" data-name="Radio Ranchera y Cumbia">
+      <span class="radio-icon">🤠</span>
+      <div class="radio-info"><div class="radio-name">Radio Ranchera y Cumbia</div><div class="radio-freq">Rancheras y cumbia</div></div>
+      <span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-url="https://stream.zeno.fm/mgwm63y28vzuv" data-name="Radio Zonamix Chile">
+      <span class="radio-icon">🇨🇱</span>
+      <div class="radio-info"><div class="radio-name">Radio Zonamix Chile</div><div class="radio-freq">Mix chileno</div></div>
+      <span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-url="https://stream.zeno.fm/vahqwcqe508uv" data-name="Radio Románticamente Tuya">
+      <span class="radio-icon">🌹</span>
+      <div class="radio-info"><div class="radio-name">Radio Románticamente Tuya</div><div class="radio-freq">Solo baladas</div></div>
+      <span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-url="https://stream.zeno.fm/4wx4h7dgyrhvv" data-name="La Rockola Radio">
+      <span class="radio-icon">🎵</span>
+      <div class="radio-info"><div class="radio-name">La Rockola Radio</div><div class="radio-freq">Rockola clásica</div></div>
+      <span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-url="https://stream.zeno.fm/bt9ru8zhcq8uv" data-name="Radio Classic Pop Music">
+      <span class="radio-icon">🎹</span>
+      <div class="radio-info"><div class="radio-name">Radio Classic Pop Music</div><div class="radio-freq">Pop clásico</div></div>
+      <span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-url="https://stream.zeno.fm/ovboa8ho9fzuv" data-name="Rap Chileno">
+      <span class="radio-icon">🎙️</span>
+      <div class="radio-info"><div class="radio-name">Rap Chileno</div><div class="radio-freq">Hip-hop nacional</div></div>
+      <span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-url="https://stream.zeno.fm/it0y9hw3enauv" data-name="Elgenero.com">
+      <span class="radio-icon">🎶</span>
+      <div class="radio-info"><div class="radio-name">Elgenero.com</div><div class="radio-freq">Urbano y trap</div></div>
+      <span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-url="https://stream.zeno.fm/sgbpeccnfuhvv" data-name="Chile Latino">
+      <span class="radio-icon">🇨🇱</span>
+      <div class="radio-info"><div class="radio-name">Chile Latino</div><div class="radio-freq">Latino desde Chile</div></div>
+      <span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-url="https://sonicpanel.cloudstreaming.eu/9966/" data-name="Radio Bknes Juvenil">
+      <span class="radio-icon">🔊</span>
+      <div class="radio-info"><div class="radio-name">Radio Bknes Juvenil</div><div class="radio-freq">La juvenil de Chile</div></div>
       <span class="radio-check">✓</span>
     </button>
   </div>
