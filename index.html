@@ -489,8 +489,8 @@ function updateRing() {
 function triggerAd() {
   adActive = true;
 
-  // Pausar radio
-  radioEl.pause();
+  // Bajar volumen radio (duck) en vez de pausar
+  radioEl.volume = 0.15;
   setWave(false);
 
   // Mostrar banner visual
@@ -501,6 +501,7 @@ function triggerAd() {
   // Reproducir audio de publicidad
   const track = nextTrack();
   adAudioEl.src = track;
+  adAudioEl.volume = 1.0;
   adAudioEl.currentTime = 0;
   adAudioEl.play().catch(() => {});
 
@@ -508,7 +509,6 @@ function triggerAd() {
   let countdown = 0;
   adSkipNum.textContent = '...';
 
-  // Esperar a que el audio cargue para saber su duración
   adAudioEl.onloadedmetadata = () => {
     countdown = Math.ceil(adAudioEl.duration);
     adSkipNum.textContent = countdown;
@@ -519,16 +519,18 @@ function triggerAd() {
     }, 1000);
   };
 
-  // Cuando termina el audio, volver a la radio
+  // Cuando termina el audio, subir volumen radio suavemente
   adAudioEl.onended = () => {
     setAdWave(false);
     adOverlay.classList.remove('visible');
     adActive = false;
-    if (isPlaying) {
-      radioEl.play().catch(() => {});
-      setWave(true);
-      startRing();
-    }
+    let vol = 0.15;
+    const fadeIn = setInterval(() => {
+      vol = Math.min(1.0, vol + 0.05);
+      radioEl.volume = vol;
+      if (vol >= 1.0) { clearInterval(fadeIn); setWave(true); }
+    }, 100);
+    if (isPlaying) startRing();
   };
 }
 
