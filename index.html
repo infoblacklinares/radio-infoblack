@@ -154,8 +154,17 @@
   .ad-text { font-size: 14px; color: var(--text); line-height: 1.5; margin-bottom: 14px; }
   .ad-text strong { color: var(--accent); }
   .ad-url { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent); }
-  .ad-skip { position: absolute; top: 16px; right: 20px; font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); }
+  .ad-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .ad-skip { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); }
   .ad-skip span { color: var(--accent); font-weight: 700; }
+  .ad-pause-btn { background: transparent; border: 1px solid var(--accent); color: var(--accent); border-radius: 8px; padding: 5px 12px; font-family: 'Space Mono', monospace; font-size: 10px; cursor: pointer; transition: background .2s; }
+  .ad-pause-btn:hover { background: #0d2a1a; }
+  .ad-pause-btn.paused { border-color: var(--accent2); color: var(--accent2); }
+  /* Botón eliminar radio */
+  .radio-btn { position: relative; }
+  .radio-del { position: absolute; top: 8px; right: 8px; background: transparent; border: none; color: #333; font-size: 14px; cursor: pointer; padding: 2px 6px; border-radius: 4px; opacity: 0; transition: opacity .2s, color .2s; line-height: 1; }
+  .radio-btn:hover .radio-del { opacity: 1; }
+  .radio-del:hover { color: var(--accent2) !important; }
 
   /* WAVEFORM AD */
   .ad-wave { display: flex; align-items: center; gap: 3px; height: 20px; margin-top: 14px; }
@@ -348,7 +357,10 @@
   <div class="ad-brand">InfoBl@ck</div>
   <div class="ad-text" id="adText"></div>
   <a href="https://infoblack.cl" target="_blank" class="ad-url">infoblack.cl</a>
-  <div class="ad-skip">Vuelve la radio en <span id="adSkipNum">—</span>s</div>
+  <div class="ad-controls">
+    <div class="ad-skip">Vuelve la radio en <span id="adSkipNum">—</span>s</div>
+    <button class="ad-pause-btn" id="adPauseBtn" onclick="toggleAdPause()">⏸ Pausar</button>
+  </div>
   <div class="ad-wave" id="adWave"></div>
 </div>
 
@@ -490,7 +502,7 @@ function triggerAd() {
   adActive = true;
 
   // Bajar volumen radio (duck) en vez de pausar
-  radioEl.volume = 0.15;
+  radioEl.volume = 0.30;
   setWave(false);
 
   // Mostrar banner visual
@@ -520,18 +532,40 @@ function triggerAd() {
   };
 
   // Cuando termina el audio, subir volumen radio suavemente
-  adAudioEl.onended = () => {
-    setAdWave(false);
-    adOverlay.classList.remove('visible');
-    adActive = false;
-    let vol = 0.15;
-    const fadeIn = setInterval(() => {
-      vol = Math.min(1.0, vol + 0.05);
-      radioEl.volume = vol;
-      if (vol >= 1.0) { clearInterval(fadeIn); setWave(true); }
-    }, 100);
-    if (isPlaying) startRing();
-  };
+  adAudioEl.onended = finishAd;
+}
+
+function finishAd() {
+  setAdWave(false);
+  adOverlay.classList.remove('visible');
+  adPaused = false;
+  adActive = false;
+  document.getElementById('adPauseBtn').textContent = '⏸ Pausar';
+  document.getElementById('adPauseBtn').classList.remove('paused');
+  let vol = 0.30;
+  const fadeIn = setInterval(() => {
+    vol = Math.min(1.0, vol + 0.05);
+    radioEl.volume = vol;
+    if (vol >= 1.0) { clearInterval(fadeIn); setWave(true); }
+  }, 100);
+  if (isPlaying) startRing();
+}
+
+let adPaused = false;
+function toggleAdPause() {
+  const btn = document.getElementById('adPauseBtn');
+  if (!adActive) return;
+  if (adPaused) {
+    adAudioEl.play().catch(() => {});
+    adPaused = false;
+    btn.textContent = '⏸ Pausar';
+    btn.classList.remove('paused');
+  } else {
+    adAudioEl.pause();
+    adPaused = true;
+    btn.textContent = '▶ Reanudar';
+    btn.classList.add('paused');
+  }
 }
 
 // ── Radio play/pause ────────────────────────────────────────────
@@ -566,28 +600,60 @@ btnPlay.addEventListener('click', () => {
   isPlaying ? pause() : play();
 });
 
-// Selección de radio
-radioList.querySelectorAll('.radio-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    radioList.querySelectorAll('.radio-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentUrl  = btn.dataset.url;
-    currentName = btn.dataset.name;
-    trackTitle.textContent = currentName;
-    trackSub.textContent   = 'Presiona play para comenzar';
-    if (isPlaying) { pause(); setTimeout(play, 300); }
+// Selección de radio y botón eliminar
+function initRadioButtons() {
+  radioList.querySelectorAll('.radio-btn').forEach(btn => {
+    if (btn.dataset.bound) return;
+    btn.dataset.bound = '1';
+
+    // Agregar botón eliminar si no existe
+    if (!btn.querySelector('.radio-del')) {
+      const del = document.createElement('button');
+      del.className = 'radio-del';
+      del.title = 'Eliminar';
+      del.innerHTML = '✕';
+      del.addEventListener('click', e => {
+        e.stopPropagation();
+        const name = btn.dataset.name;
+        if (confirm(`¿Eliminar "${name}" de la lista?`)) {
+          if (btn.classList.contains('active')) { pause(); }
+          btn.remove();
+        }
+      });
+      btn.appendChild(del);
+    }
+
+    btn.addEventListener('click', () => {
+      radioList.querySelectorAll('.radio-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentUrl  = btn.dataset.url;
+      currentName = btn.dataset.name;
+      trackTitle.textContent = currentName;
+      trackSub.textContent   = 'Presiona play para comenzar';
+      if (isPlaying) { pause(); setTimeout(play, 300); }
+    });
   });
-});
+}
+initRadioButtons();
 
 // URL personalizada
 btnCustom.addEventListener('click', () => {
   const url = customUrl.value.trim();
   if (!url) return;
   radioList.querySelectorAll('.radio-btn').forEach(b => b.classList.remove('active'));
+  // Crear botón en la lista
+  const newBtn = document.createElement('button');
+  newBtn.className = 'radio-btn active';
+  newBtn.dataset.url = url;
+  newBtn.dataset.name = 'Stream personalizado';
+  newBtn.innerHTML = `<span class="radio-icon">📡</span><div class="radio-info"><div class="radio-name">Stream personalizado</div><div class="radio-freq">${url.substring(0,40)}...</div></div><span class="radio-check">✓</span>`;
+  radioList.appendChild(newBtn);
+  initRadioButtons();
   currentUrl  = url;
   currentName = 'Stream personalizado';
   trackTitle.textContent = currentName;
   trackSub.textContent   = 'Presiona play para comenzar';
+  customUrl.value = '';
   if (isPlaying) { pause(); setTimeout(play, 300); }
 });
 customUrl.addEventListener('keydown', e => { if (e.key === 'Enter') btnCustom.click(); });
