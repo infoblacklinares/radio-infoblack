@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Radio InfoBlack</title>
+<title>InfoBlack Radio</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0a0a0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="IB Radio">
+<link rel="apple-touch-icon" href="/icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -192,6 +198,17 @@
 </style>
 </head>
 <body>
+
+<!-- BANNER INSTALAR PWA -->
+<div id="installBanner" style="display:none;width:100%;max-width:480px;background:#1a1a26;border:1px solid #00ff88;border-radius:16px;padding:14px 18px;margin-bottom:16px;align-items:center;gap:12px;">
+  <img src="/icon.png" style="width:40px;height:40px;border-radius:10px;flex-shrink:0;">
+  <div style="flex:1;">
+    <div style="font-size:13px;font-weight:600;color:#fff;">Instalar InfoBlack Radio</div>
+    <div style="font-size:11px;color:#5a5a7a;margin-top:2px;">Agregar a la pantalla de inicio</div>
+  </div>
+  <button id="btnInstall" style="background:#00ff88;color:#0a0a0f;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Space Mono',monospace;">INSTALAR</button>
+  <button id="btnInstallClose" style="background:transparent;border:none;color:#5a5a7a;font-size:18px;cursor:pointer;padding:0 4px;">✕</button>
+</div>
 
 <header>
   <div class="logo-dot"></div>
@@ -735,6 +752,12 @@ function initRadioButtons() {
         const name = btn.dataset.name;
         if (confirm(`¿Eliminar "${name}" de la lista?`)) {
           if (btn.classList.contains('active')) { pause(); }
+          // Guardar en localStorage para persistir
+          const deleted = getDeleted();
+          if (!deleted.includes(btn.dataset.url)) {
+            deleted.push(btn.dataset.url);
+            saveDeleted(deleted);
+          }
           btn.remove();
         }
       });
@@ -752,7 +775,6 @@ function initRadioButtons() {
     });
   });
 }
-initRadioButtons();
 
 // URL personalizada
 btnCustom.addEventListener('click', () => {
@@ -794,6 +816,49 @@ requestWakeLock();
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') requestWakeLock();
 });
+
+// ── Service Worker (PWA) ────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+
+// ── PWA Install banner ─────────────────────────────────────────
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBanner').style.display = 'flex';
+});
+document.getElementById('btnInstall').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById('installBanner').style.display = 'none';
+});
+document.getElementById('btnInstallClose').addEventListener('click', () => {
+  document.getElementById('installBanner').style.display = 'none';
+});
+
+// ── Eliminación persistente de radios ──────────────────────────
+const DELETED_KEY = 'ib_deleted_radios';
+
+function getDeleted() {
+  return JSON.parse(localStorage.getItem(DELETED_KEY) || '[]');
+}
+function saveDeleted(list) {
+  localStorage.setItem(DELETED_KEY, JSON.stringify(list));
+}
+
+// Ocultar radios eliminadas al cargar
+function applyDeleted() {
+  const deleted = getDeleted();
+  radioList.querySelectorAll('.radio-btn').forEach(btn => {
+    if (deleted.includes(btn.dataset.url)) btn.remove();
+  });
+}
+applyDeleted();
+initRadioButtons();
 </script>
 </body>
 </html>
