@@ -1,5 +1,5 @@
-const CACHE = 'infoblack-radio-v1';
-const ASSETS = ['/', '/index.html', '/icon.png', '/audio-1.mp3', '/audio-2.mp3', '/audio-3.mp3'];
+const CACHE = 'infoblack-radio-v2';
+const ASSETS = ['/', '/index.html', '/icon-192.png', '/icon-512.png', '/audio-1.mp3', '/audio-2.mp3', '/audio-3.mp3'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
