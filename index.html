@@ -12,188 +12,342 @@
 <link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0a0f;
-    --surface: #12121a;
-    --card: #1a1a26;
-    --border: #2a2a3a;
-    --accent: #00ff88;
-    --accent2: #ff3366;
-    --text: #e8e8f0;
-    --muted: #5a5a7a;
+    --bg: #050810;
+    --panel: #080c18;
+    --surface: #0a1020;
+    --card: #0d1428;
+    --border: #1a3a5c;
+    --border2: #0f2540;
+    --accent: #00c8ff;
+    --accent2: #0066ff;
+    --accent3: #00ffcc;
+    --glow: #00c8ff40;
+    --text: #c8e8ff;
+    --muted: #3a6080;
+    --metal: linear-gradient(180deg, #1a2a3a 0%, #0d1828 50%, #060e1a 100%);
+    --screw: radial-gradient(circle at 40% 35%, #2a3a4a, #0a1520);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
+
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Rajdhani', sans-serif;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 24px 16px;
+    padding: 16px 12px 32px;
     background-image:
-      radial-gradient(ellipse at 20% 10%, #00ff8815 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 90%, #ff336615 0%, transparent 50%);
+      radial-gradient(ellipse at 50% 0%, #001830 0%, transparent 60%),
+      repeating-linear-gradient(0deg, transparent, transparent 40px, #00c8ff04 40px, #00c8ff04 41px),
+      repeating-linear-gradient(90deg, transparent, transparent 40px, #00c8ff04 40px, #00c8ff04 41px);
   }
+
+  /* ── SCREWS DECORATION ── */
+  .screw { width:10px; height:10px; border-radius:50%; background:var(--screw); border:1px solid #1a3040; box-shadow:inset 0 1px 2px #2a4060, 0 0 4px #000; position:absolute; }
+
+  /* ── HEADER / PANEL TOP ── */
   header {
-    width: 100%; max-width: 480px;
+    width: 100%; max-width: 500px;
+    background: linear-gradient(180deg, #0f1e30 0%, #08121e 100%);
+    border: 1px solid var(--border);
+    border-bottom: 2px solid var(--accent2);
+    border-radius: 12px 12px 0 0;
+    padding: 14px 20px 10px;
     display: flex; align-items: center; gap: 12px;
-    margin-bottom: 28px;
+    position: relative;
+    box-shadow: 0 0 30px #00c8ff20, inset 0 1px 0 #1a4060;
+    margin-bottom: 0;
   }
+  header::before, header::after {
+    content:''; position:absolute; top:8px;
+    width:8px; height:8px; border-radius:50%;
+    background: radial-gradient(circle at 40% 35%, #2a3a4a, #0a1520);
+    border:1px solid #1a3040;
+  }
+  header::before { left:10px; }
+  header::after { right:10px; }
+
+  .logo-wrap { display:flex; align-items:center; gap:10px; }
+  .logo-icon { width:32px; height:32px; border-radius:6px; object-fit:cover; border:1px solid var(--accent2); box-shadow:0 0 10px var(--accent2); }
   .logo-dot {
-    width: 10px; height: 10px; border-radius: 50%;
-    background: var(--accent); animation: blink 1.5s infinite;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent3); animation: blink 1.2s infinite;
+    box-shadow: 0 0 8px var(--accent3);
   }
-  @keyframes blink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)} }
-  header h1 { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:3px; color:var(--accent); }
-  header span { font-family:'Space Mono',monospace; font-size:10px; color:var(--muted); margin-left:auto; }
+  @keyframes blink { 0%,100%{opacity:1;box-shadow:0 0 8px var(--accent3)} 50%{opacity:.3;box-shadow:none} }
 
-  /* RADIO SELECTOR */
+  header h1 {
+    font-family: 'Orbitron', sans-serif; font-size: 16px; font-weight: 900;
+    letter-spacing: 4px; color: var(--accent);
+    text-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent2);
+    flex: 1;
+  }
+  .header-right { display:flex; flex-direction:column; align-items:flex-end; gap:2px; }
+  .hdr-city { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--accent); letter-spacing:2px; }
+  .hdr-status {
+    font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--accent3);
+    background:#001a10; border:1px solid var(--accent3); border-radius:3px;
+    padding:1px 6px; letter-spacing:1px; animation: statusBlink 2s infinite;
+  }
+  @keyframes statusBlink { 0%,80%,100%{opacity:1} 90%{opacity:.4} }
+
+  /* ── MAIN PANEL ── */
+  .main-panel {
+    width: 100%; max-width: 500px;
+    background: linear-gradient(180deg, #08121e 0%, #060e18 100%);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    padding: 16px;
+    margin-bottom: 4px;
+    position: relative;
+  }
+
+  /* ── SCREEN / RADIO SELECTOR ── */
   .radio-selector {
-    width: 100%; max-width: 480px;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 20px; padding: 20px 24px; margin-bottom: 16px;
+    width: 100%;
+    background: #020608;
+    border: 2px solid #0a2030;
+    border-radius: 6px;
+    padding: 0;
+    margin-bottom: 12px;
+    position: relative;
+    box-shadow: inset 0 0 40px #000, 0 0 2px #00c8ff30;
+    overflow: hidden;
   }
-  .section-label {
-    font-family: 'Space Mono', monospace; font-size: 10px;
-    letter-spacing: 2px; color: var(--muted); text-transform: uppercase;
-    margin-bottom: 14px;
+  .screen-header {
+    background: linear-gradient(90deg, #0a1e30, #051020, #0a1e30);
+    border-bottom: 1px solid #0a2a40;
+    padding: 6px 14px;
+    display: flex; align-items: center; justify-content: space-between;
   }
-  .radio-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; max-height: 380px; overflow-y: auto; padding-right: 4px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
-  .radio-list::-webkit-scrollbar { width: 4px; }
-  .radio-list::-webkit-scrollbar-track { background: transparent; }
-  .radio-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-  .radio-btn {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 16px; background: var(--card);
-    border: 1px solid var(--border); border-radius: 12px;
-    cursor: pointer; transition: border-color .2s, background .2s;
-    text-align: left; width: 100%;
+  .screen-title {
+    font-family:'Share Tech Mono',monospace; font-size:9px;
+    letter-spacing:3px; color:var(--accent); text-transform:uppercase;
   }
-  .radio-btn:hover { border-color: var(--accent); background: #1a2a20; }
-  .radio-btn.active { border-color: var(--accent); background: #0d1f17; }
-  .radio-icon { font-size: 20px; flex-shrink: 0; }
-  .radio-info { flex: 1; }
-  .radio-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
-  .radio-btn.active .radio-name { color: var(--accent); }
-  .radio-freq { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); }
-  .radio-check { color: var(--accent); font-size: 16px; opacity: 0; }
-  .radio-btn.active .radio-check { opacity: 1; }
+  .screen-dots { display:flex; gap:5px; }
+  .screen-dot { width:6px; height:6px; border-radius:50%; }
+  .sd-r { background:#ff3040; box-shadow:0 0 4px #ff3040; }
+  .sd-y { background:#ffa020; box-shadow:0 0 4px #ffa020; }
+  .sd-g { background:var(--accent3); box-shadow:0 0 4px var(--accent3); }
 
-  .custom-url-wrap { display: flex; flex-direction: column; gap: 6px; }
-  .inp-label { font-size: 10px; color: var(--muted); font-family: 'Space Mono', monospace; letter-spacing: 1px; }
-  .inp-row { display: flex; gap: 8px; }
+  .section-label {
+    font-family: 'Share Tech Mono', monospace; font-size: 9px;
+    letter-spacing: 2px; color: var(--muted); text-transform: uppercase;
+    padding: 8px 14px 4px;
+  }
+  .radio-list {
+    display: flex; flex-direction: column; gap: 2px;
+    max-height: 300px; overflow-y: auto;
+    padding: 4px 8px 8px; padding-right: 4px;
+    scrollbar-width: thin; scrollbar-color: #1a3a5c transparent;
+  }
+  .radio-list::-webkit-scrollbar { width: 3px; }
+  .radio-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .radio-btn {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 10px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer; transition: all .15s;
+    text-align: left; width: 100%; position: relative;
+  }
+  .radio-btn:hover { background: #001830; border-color: #0a3050; }
+  .radio-btn.active {
+    background: linear-gradient(90deg, #001828, #000f1a);
+    border-color: var(--accent2);
+    box-shadow: 0 0 10px #0066ff30, inset 0 0 10px #0066ff08;
+  }
+  .radio-icon { font-size: 16px; flex-shrink: 0; opacity: .8; }
+  .radio-info { flex: 1; min-width: 0; }
+  .radio-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .radio-btn.active .radio-name { color: var(--accent); text-shadow: 0 0 6px var(--accent); }
+  .radio-freq { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--muted); }
+  .radio-check { color: var(--accent); font-size: 12px; opacity: 0; flex-shrink:0; }
+  .radio-btn.active .radio-check { opacity: 1; text-shadow: 0 0 6px var(--accent); }
+  .radio-del { position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: #1a3040; font-size: 12px; cursor: pointer; padding: 2px 5px; border-radius: 3px; opacity: 0; transition: opacity .2s, color .2s; line-height: 1; }
+  .radio-btn:hover .radio-del { opacity: 1; }
+  .radio-del:hover { color: #ff3040 !important; }
+
+  .custom-url-wrap { display: flex; flex-direction: column; gap: 6px; padding: 0 8px 10px; }
+  .inp-label { font-size: 9px; color: var(--muted); font-family: 'Share Tech Mono', monospace; letter-spacing: 1px; }
+  .inp-row { display: flex; gap: 6px; }
   .inp {
-    flex: 1; background: var(--card); border: 1px solid var(--border);
-    border-radius: 10px; padding: 10px 14px; color: var(--text);
-    font-family: 'DM Sans', sans-serif; font-size: 12px; outline: none;
+    flex: 1; background: #020608; border: 1px solid #0a2030;
+    border-radius: 4px; padding: 8px 10px; color: var(--text);
+    font-family: 'Rajdhani', sans-serif; font-size: 12px; outline: none;
     transition: border-color .2s;
   }
-  .inp:focus { border-color: var(--accent); }
+  .inp:focus { border-color: var(--accent); box-shadow: 0 0 6px var(--accent2); }
   .inp::placeholder { color: var(--muted); }
   .btn-sm {
-    padding: 10px 16px; background: var(--accent); color: var(--bg);
-    border: none; border-radius: 10px; font-family: 'Space Mono', monospace;
-    font-size: 11px; cursor: pointer; font-weight: 700; white-space: nowrap;
-    transition: background .2s;
+    padding: 8px 14px; background: linear-gradient(180deg, #0050cc, #003090);
+    color: var(--accent); border: 1px solid var(--accent2);
+    border-radius: 4px; font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; cursor: pointer; font-weight: 700; white-space: nowrap;
+    transition: all .2s; text-shadow: 0 0 6px var(--accent);
+    box-shadow: 0 0 8px #0044cc40;
   }
-  .btn-sm:hover { background: #00ffaa; }
+  .btn-sm:hover { background: linear-gradient(180deg, #0066ff, #0044cc); box-shadow: 0 0 14px #0066ff60; }
 
-  /* PLAYER */
+  /* ── CONTROL STRIP (under screen) ── */
+  .ctrl-strip {
+    background: linear-gradient(180deg, #0a1828 0%, #060e18 100%);
+    border: 1px solid #0a2030;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px;
+  }
+  .ctrl-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    background: linear-gradient(180deg, #0d1e2e, #060e18);
+    border: 1px solid #0f2a40; border-radius: 4px;
+    padding: 6px 10px; cursor: pointer;
+    font-family: 'Share Tech Mono', monospace; font-size: 8px;
+    color: var(--muted); letter-spacing: 1px;
+    transition: all .2s; flex:1;
+  }
+  .ctrl-btn:hover { border-color: var(--accent2); color: var(--accent); background: #001830; }
+  .ctrl-btn-icon { font-size: 14px; }
+  .ctrl-divider { width:1px; height:32px; background:var(--border2); }
+
+  /* ── PLAYER ── */
   .player {
-    width: 100%; max-width: 480px;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 20px; padding: 24px; margin-bottom: 16px;
+    width: 100%;
+    background: linear-gradient(180deg, #0a1828 0%, #060e18 100%);
+    border: 1px solid var(--border);
+    border-radius: 6px; padding: 16px; margin-bottom: 12px;
     position: relative; overflow: hidden;
   }
   .player::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    content:''; position:absolute; top:0; left:0; right:0; height:1px;
+    background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), var(--accent), transparent);
   }
+  .player::after {
+    content:''; position:absolute; bottom:0; left:0; right:0; height:1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+  }
+
   .now-playing-label {
-    font-family: 'Space Mono', monospace; font-size: 9px;
-    letter-spacing: 3px; color: var(--muted); margin-bottom: 12px;
+    font-family: 'Share Tech Mono', monospace; font-size: 8px;
+    letter-spacing: 3px; color: var(--muted); margin-bottom: 8px;
+    display:flex; align-items:center; gap:8px;
   }
+  .now-playing-label::after { content:''; flex:1; height:1px; background:var(--border2); }
+
   .track-title {
-    font-family: 'Bebas Neue', sans-serif; font-size: 30px;
-    letter-spacing: 1px; color: var(--text); line-height: 1;
-    margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font-family: 'Orbitron', sans-serif; font-size: 18px; font-weight: 700;
+    letter-spacing: 1px; color: var(--accent);
+    text-shadow: 0 0 10px var(--accent2);
+    line-height: 1.1; margin-bottom: 4px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .track-sub { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+  .track-sub { font-size: 11px; color: var(--muted); margin-bottom: 14px; font-family:'Share Tech Mono',monospace; letter-spacing:1px; }
 
-  .waveform { display: flex; align-items: center; gap: 3px; height: 32px; margin-bottom: 20px; }
-  .waveform-bar { width: 3px; background: var(--accent); border-radius: 2px; opacity: .2; }
-  .waveform-bar.active { opacity: 1; animation: wave .8s ease-in-out infinite; }
-  @keyframes wave { 0%,100%{transform:scaleY(.3)} 50%{transform:scaleY(1)} }
+  .waveform { display: flex; align-items: center; gap: 2px; height: 28px; margin-bottom: 16px; }
+  .waveform-bar { width: 3px; background: var(--accent2); border-radius: 1px; opacity: .15; }
+  .waveform-bar.active { opacity: 1; animation: wave .8s ease-in-out infinite; box-shadow: 0 0 4px var(--accent); }
+  @keyframes wave { 0%,100%{transform:scaleY(.2)} 50%{transform:scaleY(1)} }
 
-  .controls { display: flex; align-items: center; justify-content: center; gap: 24px; }
+  /* Controls row */
+  .controls { display: flex; align-items: center; justify-content: center; gap: 20px; }
+
+  /* PLAY button — big dial style */
   .btn-play {
-    width: 64px; height: 64px; border-radius: 50%;
-    background: var(--accent); color: var(--bg); border: none; cursor: pointer;
+    width: 70px; height: 70px; border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, #0a2a4a, #020a14);
+    color: var(--accent); border: 2px solid var(--accent2); cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    transition: transform .15s, background .2s;
-    box-shadow: 0 0 24px #00ff8850;
+    transition: transform .15s, box-shadow .2s;
+    box-shadow: 0 0 20px #0066ff60, 0 0 40px #0066ff20, inset 0 0 20px #001030;
+    position: relative;
   }
-  .btn-play:hover { transform: scale(1.08); background: #00ffaa; }
-  .btn-play:active { transform: scale(.96); }
+  .btn-play::before {
+    content:''; position:absolute; inset:4px; border-radius:50%;
+    border:1px solid #0a3050; pointer-events:none;
+  }
+  .btn-play:hover { transform: scale(1.06); box-shadow: 0 0 30px #0066ffaa, 0 0 60px #0066ff40, inset 0 0 20px #001848; }
+  .btn-play:active { transform: scale(.95); }
 
   /* AD RING */
-  .ad-ring-wrap { display: none; flex-direction: column; align-items: center; gap: 6px; }
+  .ad-ring-wrap { display: none; flex-direction: column; align-items: center; gap: 4px; }
   .ad-ring-wrap.visible { display: flex; }
-  .ad-ring-label { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 2px; color: var(--muted); }
+  .ad-ring-label { font-family: 'Share Tech Mono', monospace; font-size: 8px; letter-spacing: 2px; color: var(--muted); }
   .ad-ring { width: 44px; height: 44px; position: relative; }
   .ad-ring svg { transform: rotate(-90deg); }
   .ad-ring-bg { fill: none; stroke: var(--border); stroke-width: 3; }
-  .ad-ring-fill { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 113; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; }
-  .ad-ring-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Space Mono', monospace; font-size: 12px; color: var(--accent); font-weight: 700; }
+  .ad-ring-fill { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 113; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; filter: drop-shadow(0 0 3px var(--accent)); }
+  .ad-ring-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--accent); font-weight: 700; }
 
-  /* AD BANNER */
+  /* ── AD BANNER ── */
   .ad-overlay {
-    display: none; width: 100%; max-width: 480px;
-    background: #0d1f17; border: 1px solid var(--accent);
-    border-radius: 20px; padding: 20px 24px; margin-bottom: 16px;
+    display: none; width: 100%;
+    background: linear-gradient(180deg, #001a10, #000e0a);
+    border: 1px solid var(--accent3);
+    border-radius: 6px; padding: 14px 16px; margin-bottom: 12px;
     position: relative; overflow: hidden;
+    box-shadow: 0 0 20px #00ffcc20;
   }
   .ad-overlay.visible { display: block; animation: fadeIn .4s ease; }
   @keyframes fadeIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
-  .ad-overlay::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--accent); }
-  .ad-tag { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 3px; color: var(--accent); margin-bottom: 8px; }
-  .ad-brand { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 2px; color: var(--accent); margin-bottom: 6px; }
-  .ad-text { font-size: 14px; color: var(--text); line-height: 1.5; margin-bottom: 14px; }
-  .ad-text strong { color: var(--accent); }
-  .ad-url { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent); }
-  .ad-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-  .ad-skip { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); }
-  .ad-skip span { color: var(--accent); font-weight: 700; }
-  .ad-pause-btn { background: transparent; border: 1px solid var(--accent); color: var(--accent); border-radius: 8px; padding: 5px 12px; font-family: 'Space Mono', monospace; font-size: 10px; cursor: pointer; transition: background .2s; }
-  .ad-pause-btn:hover { background: #0d2a1a; }
-  .ad-pause-btn.paused { border-color: var(--accent2); color: var(--accent2); }
-  /* Botón eliminar radio */
-  .radio-btn { position: relative; }
-  .radio-del { position: absolute; top: 8px; right: 8px; background: transparent; border: none; color: #333; font-size: 14px; cursor: pointer; padding: 2px 6px; border-radius: 4px; opacity: 0; transition: opacity .2s, color .2s; line-height: 1; }
-  .radio-btn:hover .radio-del { opacity: 1; }
-  .radio-del:hover { color: var(--accent2) !important; }
+  .ad-overlay::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg, transparent, var(--accent3), transparent); }
+  .ad-tag { font-family: 'Share Tech Mono', monospace; font-size: 8px; letter-spacing: 3px; color: var(--accent3); margin-bottom: 6px; }
+  .ad-brand { font-family: 'Orbitron', sans-serif; font-size: 24px; font-weight:700; letter-spacing: 2px; color: var(--accent3); margin-bottom: 4px; text-shadow: 0 0 10px var(--accent3); }
+  .ad-text { font-size: 13px; color: var(--text); line-height: 1.5; margin-bottom: 10px; }
+  .ad-text strong { color: var(--accent3); }
+  .ad-url { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--accent3); text-decoration: none; border-bottom: 1px solid var(--accent3); }
+  .ad-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .ad-skip { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--muted); }
+  .ad-skip span { color: var(--accent3); font-weight: 700; }
+  .ad-pause-btn { background: transparent; border: 1px solid var(--accent3); color: var(--accent3); border-radius: 4px; padding: 4px 10px; font-family: 'Share Tech Mono', monospace; font-size: 9px; cursor: pointer; transition: background .2s; }
+  .ad-pause-btn:hover { background: #001a10; }
+  .ad-pause-btn.paused { border-color: #ffa020; color: #ffa020; }
 
   /* WAVEFORM AD */
-  .ad-wave { display: flex; align-items: center; gap: 3px; height: 20px; margin-top: 14px; }
-  .ad-wave-bar { width: 3px; background: var(--accent); border-radius: 2px; opacity: 0; }
+  .ad-wave { display: flex; align-items: center; gap: 3px; height: 18px; margin-top: 10px; }
+  .ad-wave-bar { width: 3px; background: var(--accent3); border-radius: 1px; opacity: 0; }
   .ad-wave-bar.on { opacity: 1; animation: wave .6s ease-in-out infinite; }
 
-  /* AD INTERVAL */
-  .ad-setting {
-    width: 100%; max-width: 480px;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 20px; padding: 16px 24px;
-    display: flex; align-items: center; justify-content: space-between;
+  /* ── BOTTOM STATUS BAR ── */
+  .status-bar {
+    width: 100%; max-width: 500px;
+    background: linear-gradient(180deg, #060e18 0%, #030810 100%);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--accent2);
+    border-radius: 0 0 12px 12px;
+    padding: 10px 16px;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    margin-bottom: 8px;
+    box-shadow: 0 0 20px #00c8ff15;
   }
-  .ad-setting-label { font-size: 13px; color: var(--muted); }
+  .status-item { display:flex; flex-direction:column; align-items:center; gap:2px; }
+  .status-val { font-family:'Orbitron',sans-serif; font-size:16px; font-weight:700; color:var(--accent); text-shadow:0 0 8px var(--accent2); line-height:1; }
+  .status-lbl { font-family:'Share Tech Mono',monospace; font-size:7px; color:var(--muted); letter-spacing:1px; }
+  .status-divider { width:1px; height:28px; background:var(--border2); }
+
+  /* ── AD SETTING ── */
+  .ad-setting {
+    width: 100%; max-width: 500px;
+    background: linear-gradient(180deg, #0a1828 0%, #060e18 100%);
+    border: 1px solid var(--border);
+    border-radius: 6px; padding: 12px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 8px;
+  }
+  .ad-setting-label { font-size: 12px; color: var(--muted); font-family:'Share Tech Mono',monospace; letter-spacing:1px; }
   .ad-setting select {
-    background: var(--card); border: 1px solid var(--border);
-    color: var(--text); border-radius: 8px; padding: 8px 12px;
-    font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; cursor: pointer;
+    background: #020608; border: 1px solid var(--border);
+    color: var(--accent); border-radius: 4px; padding: 6px 10px;
+    font-family: 'Share Tech Mono', monospace; font-size: 11px; outline: none; cursor: pointer;
   }
 
   svg { display: block; }
@@ -202,47 +356,45 @@
 <body>
 
 <!-- BANNER INSTALAR PWA -->
-<div id="installBanner" style="display:none;width:100%;max-width:480px;background:#1a1a26;border:1px solid #00ff88;border-radius:16px;padding:14px 18px;margin-bottom:16px;align-items:center;gap:12px;">
-  <img src="/icon-192.png" style="width:40px;height:40px;border-radius:10px;flex-shrink:0;">
+<div id="installBanner" style="display:none;width:100%;max-width:500px;background:linear-gradient(180deg,#0a1828,#060e18);border:1px solid #0066ff;border-radius:8px;padding:12px 16px;margin-bottom:8px;align-items:center;gap:12px;box-shadow:0 0 20px #0066ff30;">
+  <img src="/icon-192.png" style="width:38px;height:38px;border-radius:6px;flex-shrink:0;border:1px solid #0066ff;box-shadow:0 0 8px #0066ff;">
   <div style="flex:1;">
-    <div style="font-size:13px;font-weight:600;color:#fff;">Instalar InfoBlack Radio</div>
-    <div style="font-size:11px;color:#5a5a7a;margin-top:2px;">Agregar a la pantalla de inicio</div>
+    <div style="font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:#00c8ff;letter-spacing:2px;">INSTALAR APP</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#3a6080;margin-top:2px;letter-spacing:1px;">INFOBLACK RADIO · LINARES</div>
   </div>
-  <button id="btnInstall" style="background:#00ff88;color:#0a0a0f;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Space Mono',monospace;">INSTALAR</button>
-  <button id="btnInstallClose" style="background:transparent;border:none;color:#5a5a7a;font-size:18px;cursor:pointer;padding:0 4px;">✕</button>
+  <button id="btnInstall" style="background:linear-gradient(180deg,#0050cc,#003090);color:#00c8ff;border:1px solid #0066ff;border-radius:4px;padding:7px 12px;font-size:10px;font-weight:700;cursor:pointer;font-family:'Share Tech Mono',monospace;letter-spacing:1px;box-shadow:0 0 10px #0066ff40;">INSTALAR</button>
+  <button id="btnInstallClose" style="background:transparent;border:1px solid #1a3040;color:#3a6080;font-size:16px;cursor:pointer;padding:4px 8px;border-radius:4px;">✕</button>
 </div>
 
+<!-- HEADER PANEL -->
 <header>
-  <div class="logo-dot"></div>
-  <h1>RADIO INFOBLACK</h1>
-  <span>LINARES · VII REGIÓN</span>
+  <div class="logo-wrap">
+    <img src="/icon-192.png" class="logo-icon" alt="IB">
+    <div class="logo-dot"></div>
+  </div>
+  <h1>INFOBLACK RADIO</h1>
+  <div class="header-right">
+    <span class="hdr-city">LINARES · VII</span>
+    <span class="hdr-status">● EN VIVO</span>
+  </div>
 </header>
+
+<!-- MAIN PANEL -->
+<div class="main-panel">
 
 <!-- SELECTOR DE RADIO -->
 <div class="radio-selector">
-  <div class="section-label">📻 Elige tu radio</div>
+  <div class="screen-header">
+    <span class="screen-title">◈ SELECCIÓN DE EMISORA</span>
+    <div class="screen-dots"><span class="screen-dot sd-r"></span><span class="screen-dot sd-y"></span><span class="screen-dot sd-g"></span></div>
+  </div>
+  <div class="section-label">▸ ESTACIONES DISPONIBLES</div>
   <div class="radio-list" id="radioList">
     <button class="radio-btn active" data-url="https://mdstrm.com/audio/637f68ddce4b1208597d8a86/icecast.audio" data-name="Radio Carolina">
       <span class="radio-icon">🎵</span>
       <div class="radio-info">
         <div class="radio-name">Radio Carolina</div>
         <div class="radio-freq">99.3 FM · Pop, Hip-Hop, Reggaetón</div>
-      </div>
-      <span class="radio-check">✓</span>
-    </button>
-    <button class="radio-btn" data-url="https://playerservices.streamtheworld.com/api/livestream-redirect/COOPERATIVA.mp3" data-name="Radio Cooperativa">
-      <span class="radio-icon">📰</span>
-      <div class="radio-info">
-        <div class="radio-name">Radio Cooperativa</div>
-        <div class="radio-freq">900 AM · Noticias y actualidad</div>
-      </div>
-      <span class="radio-check">✓</span>
-    </button>
-    <button class="radio-btn" data-url="https://playerservices.streamtheworld.com/api/livestream-redirect/BIOBIO.mp3" data-name="Radio Bio Bio">
-      <span class="radio-icon">🗞️</span>
-      <div class="radio-info">
-        <div class="radio-name">Radio Bio Bio</div>
-        <div class="radio-freq">92.1 FM · Noticias</div>
       </div>
       <span class="radio-check">✓</span>
     </button>
@@ -262,27 +414,11 @@
       </div>
       <span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://playerservices.streamtheworld.com/api/livestream-redirect/FUTURO.mp3" data-name="Radio Futuro">
-      <span class="radio-icon">🎶</span>
-      <div class="radio-info">
-        <div class="radio-name">Radio Futuro</div>
-        <div class="radio-freq">88.9 FM · Música variada</div>
-      </div>
-      <span class="radio-check">✓</span>
-    </button>
     <button class="radio-btn" data-url="https://playerservices.streamtheworld.com/api/livestream-redirect/CORAZON.mp3" data-name="Radio Corazón">
       <span class="radio-icon">❤️</span>
       <div class="radio-info">
         <div class="radio-name">Radio Corazón</div>
         <div class="radio-freq">101.3 FM · Baladas y pop</div>
-      </div>
-      <span class="radio-check">✓</span>
-    </button>
-    <button class="radio-btn" data-url="https://playerservices.streamtheworld.com/api/livestream-redirect/IMAGINA.mp3" data-name="Radio Imagina">
-      <span class="radio-icon">✨</span>
-      <div class="radio-info">
-        <div class="radio-name">Radio Imagina</div>
-        <div class="radio-freq">FM · Música latina</div>
       </div>
       <span class="radio-check">✓</span>
     </button>
@@ -462,9 +598,9 @@
 
 <!-- PLAYER -->
 <div class="player">
-  <div class="now-playing-label" id="liveLabel">● EN VIVO</div>
+  <div class="now-playing-label" id="liveLabel">◈ EN VIVO</div>
   <div class="track-title" id="trackTitle">Radio Carolina</div>
-  <div class="track-sub" id="trackSub">Presiona play para comenzar</div>
+  <div class="track-sub" id="trackSub">■ STANDBY · PRESIONA PLAY</div>
 
   <div class="waveform" id="waveform"></div>
 
@@ -477,11 +613,11 @@
         </svg>
         <div class="ad-ring-num" id="adRingNum">—</div>
       </div>
-      <span class="ad-ring-label">PUBLI</span>
+      <span class="ad-ring-label">▸ PUBLI</span>
     </div>
 
     <button class="btn-play" id="btnPlay">
-      <svg id="iconPlay" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+      <svg id="iconPlay" width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
         <path d="M8 5v14l11-7z"/>
       </svg>
     </button>
@@ -490,20 +626,40 @@
 
 <!-- BANNER PUBLICIDAD -->
 <div class="ad-overlay" id="adOverlay">
-  <div class="ad-tag">📢 PUBLICIDAD</div>
+  <div class="ad-tag">◈ TRANSMISIÓN PUBLICITARIA</div>
   <div class="ad-brand">InfoBl@ck</div>
   <div class="ad-text" id="adText"></div>
   <a href="https://infoblack.cl" target="_blank" class="ad-url">infoblack.cl</a>
   <div class="ad-controls">
-    <div class="ad-skip">Vuelve la radio en <span id="adSkipNum">—</span>s</div>
-    <button class="ad-pause-btn" id="adPauseBtn" onclick="toggleAdPause()">⏸ Pausar</button>
+    <div class="ad-skip">Radio en <span id="adSkipNum">—</span>s</div>
+    <button class="ad-pause-btn" id="adPauseBtn" onclick="toggleAdPause()">⏸ PAUSAR</button>
   </div>
   <div class="ad-wave" id="adWave"></div>
 </div>
 
+</div><!-- /main-panel -->
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <div class="status-item">
+    <span class="status-val" id="statVol">100</span>
+    <span class="status-lbl">VOL %</span>
+  </div>
+  <div class="status-divider"></div>
+  <div class="status-item">
+    <span class="status-val" id="statTime">--:--</span>
+    <span class="status-lbl">TIEMPO</span>
+  </div>
+  <div class="status-divider"></div>
+  <div class="status-item">
+    <span class="status-val" id="statNext">—</span>
+    <span class="status-lbl">PROX PUBLI</span>
+  </div>
+</div>
+
 <!-- INTERVALO -->
 <div class="ad-setting">
-  <span class="ad-setting-label">🔊 Publicidad cada</span>
+  <span class="ad-setting-label">◈ PUBLI CADA</span>
   <select id="adInterval">
     <option value="0.166">10 seg (prueba)</option>
     <option value="5">5 min</option>
@@ -712,14 +868,14 @@ function play() {
     isPlaying = true;
     setIcon(true);
     setWave(true);
-    trackSub.textContent = '🔴 En vivo';
+    trackSub.textContent = '● TRANSMITIENDO EN VIVO';
     stopRing();
     startRing();
     // Pre-cargar primer track de publicidad
     queue = shuffle(TRACKS); queueIdx = 0;
     adAudioEl.src = queue[0];
   }).catch(() => {
-    trackSub.textContent = '⚠ No se pudo conectar al stream';
+    trackSub.textContent = '⚠ ERROR · SIN SEÑAL';
   });
 }
 
@@ -728,7 +884,7 @@ function pause() {
   isPlaying = false;
   setIcon(false);
   setWave(false);
-  trackSub.textContent = 'Pausado';
+  trackSub.textContent = '■ STANDBY';
   stopRing();
 }
 
@@ -803,7 +959,7 @@ customUrl.addEventListener('keydown', e => { if (e.key === 'Enter') btnCustom.cl
 // Reconectar si se corta el stream
 radioEl.addEventListener('error', () => {
   if (isPlaying && !adActive) {
-    trackSub.textContent = '⚠ Reconectando...';
+    trackSub.textContent = '⚠ RECONECTANDO...';
     setTimeout(play, 3000);
   }
 });
@@ -888,6 +1044,39 @@ function applyDeleted() {
 }
 applyDeleted();
 initRadioButtons();
+
+// ── Status Bar ───────────────────────────────────────────────────
+const statVol  = document.getElementById('statVol');
+const statTime = document.getElementById('statTime');
+const statNext = document.getElementById('statNext');
+
+// Actualizar reloj en tiempo real
+function updateClock() {
+  const n = new Date();
+  const h = String(n.getHours()).padStart(2,'0');
+  const m = String(n.getMinutes()).padStart(2,'0');
+  const s = String(n.getSeconds()).padStart(2,'0');
+  statTime.textContent = h + ':' + m + ':' + s;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// Actualizar "próxima publi" desde el ring countdown
+setInterval(() => {
+  if (ringSeconds > 0 && isPlaying) {
+    const m = Math.floor(ringSeconds / 60);
+    const s = String(ringSeconds % 60).padStart(2,'0');
+    statNext.textContent = m > 0 ? m+'m'+s+'s' : s+'s';
+  } else if (!isPlaying) {
+    statNext.textContent = '—';
+  }
+}, 500);
+
+// Volumen
+setInterval(() => {
+  const v = adActive ? 30 : (isPlaying ? 100 : 0);
+  statVol.textContent = v;
+}, 200);
 </script>
 </body>
 </html>
