@@ -725,7 +725,15 @@ let currentUrl   = 'https://mdstrm.com/audio/637f68ddce4b1208597d8a86/icecast.au
 let currentName  = 'Radio Carolina';
 
 // Audios de publicidad (aleatorio sin repetir)
-const TRACKS = ['audio-1.mp3', 'audio-2.mp3', 'audio-3.mp3'];
+// audio-1,2,3 = InfoBlack | audio-4,5,6 = Florería Angélica
+const TRACKS = [
+  { src: 'audio-1.mp3', brand: 'InfoBl@ck',          url: 'https://infoblack.cl',                    textIdx: 0 },
+  { src: 'audio-2.mp3', brand: 'InfoBl@ck',          url: 'https://infoblack.cl',                    textIdx: 1 },
+  { src: 'audio-3.mp3', brand: 'InfoBl@ck',          url: 'https://infoblack.cl',                    textIdx: 2 },
+  { src: 'audio-4.mp3', brand: '🌸 Florería Angélica', url: 'https://floreria-angelica.vercel.app', textIdx: 3 },
+  { src: 'audio-5.mp3', brand: '🌸 Florería Angélica', url: 'https://floreria-angelica.vercel.app', textIdx: 4 },
+  { src: 'audio-6.mp3', brand: '🌸 Florería Angélica', url: 'https://floreria-angelica.vercel.app', textIdx: 5 },
+];
 let queue = [], queueIdx = 0;
 
 function shuffle(arr) {
@@ -747,6 +755,11 @@ function nextTrack() {
 
 // Textos del banner (visual)
 const adTexts = [
+  // InfoBlack
+  '¿Tu negocio no aparece en Google? En <strong>InfoBlack</strong> te creamos el sitio web y te ponemos en el mapa en menos de una semana. Desde <strong>$50.000</strong>, sin letra chica.',
+  'Cada día sin página web es un cliente que se va donde la competencia. <strong>InfoBlack</strong> te pone en internet esta semana.',
+  'Soy Willson, de <strong>InfoBlack</strong>, Linares. Sitio web, Google Maps y redes sociales. Todo en una semana, con precio claro.',
+  // Florería Angélica
   '🌸 ¡Las flores más frescas de Linares te esperan! <strong>Florería Angélica</strong>, girasoles, rosas, lilium y mucho más. Abiertos <strong>todos los días de 8 a 5</strong>. Sector Agua Fría N°15, a pasos del cementerio. ¡Escríbenos al WhatsApp!',
   '💐 ¿Buscas un regalo que diga todo sin palabras? En <strong>Florería Angélica</strong> tenemos flores frescas llegando <strong>todos los días</strong>: claveles, crisantemos, girasoles y más. Llámanos o escríbenos por <strong>WhatsApp</strong>. ¡Te sorprenderás!',
   '🌻 ¡Dale color a tu día con <strong>Florería Angélica</strong>! Flores frescas, variadas y a buen precio en <strong>Sector Agua Fría N°15</strong>, Linares. Abiertos <strong>lunes a lunes</strong>. Pide por WhatsApp y recoge cuando quieras. ¡Las flores más bonitas te están esperando!'
@@ -818,13 +831,17 @@ function triggerAd() {
   setWave(false);
 
   // Mostrar banner visual
-  adText.innerHTML = adTexts[adIdx++ % adTexts.length];
+  const track = nextTrack();
+  // Actualizar banner visual con la marca del anuncio
+  document.querySelector('.ad-brand').textContent = track.brand;
+  document.querySelector('.ad-url').href = track.url;
+  document.querySelector('.ad-url').textContent = track.url.replace('https://','');
+  adText.innerHTML = adTexts[track.textIdx];
   adOverlay.classList.add('visible');
   setAdWave(true);
 
   // Reproducir audio de publicidad
-  const track = nextTrack();
-  adAudioEl.src = track;
+  adAudioEl.src = track.src;
   adAudioEl.volume = 1.0;
   adAudioEl.currentTime = 0;
   adAudioEl.play().catch(() => {});
@@ -892,7 +909,7 @@ function play() {
     startRing();
     // Pre-cargar primer track de publicidad
     queue = shuffle(TRACKS); queueIdx = 0;
-    adAudioEl.src = queue[0];
+    adAudioEl.src = queue[0].src;
   }).catch(() => {
     trackSub.textContent = '⚠ ERROR · SIN SEÑAL';
   });
