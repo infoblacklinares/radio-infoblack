@@ -195,6 +195,21 @@
   .radio-btn:hover .radio-del { opacity: 1; }
   .radio-del:hover { color: #ff3040 !important; }
 
+  /* ── CATEGORY TABS ── */
+  .cat-tabs {
+    display: flex; gap: 4px; overflow-x: auto; padding: 8px 8px 4px;
+    scrollbar-width: none;
+  }
+  .cat-tabs::-webkit-scrollbar { display: none; }
+  .cat-tab {
+    flex-shrink: 0; font-family: 'Share Tech Mono', monospace; font-size: 8px;
+    letter-spacing: 1px; padding: 4px 10px; border-radius: 3px;
+    border: 1px solid #0a2030; background: transparent;
+    color: var(--muted); cursor: pointer; transition: all .15s; white-space: nowrap;
+  }
+  .cat-tab:hover { border-color: var(--accent2); color: var(--accent); }
+  .cat-tab.active { background: var(--accent2); border-color: var(--accent2); color: #fff; box-shadow: 0 0 8px #0066ff60; }
+
   .custom-url-wrap { display: flex; flex-direction: column; gap: 6px; padding: 0 8px 10px; }
   .inp-label { font-size: 9px; color: var(--muted); font-family: 'Share Tech Mono', monospace; letter-spacing: 1px; }
   .inp-row { display: flex; gap: 6px; }
@@ -407,186 +422,175 @@
     <span class="screen-title">◈ SELECCIÓN DE EMISORA</span>
     <div class="screen-dots"><span class="screen-dot sd-r"></span><span class="screen-dot sd-y"></span><span class="screen-dot sd-g"></span></div>
   </div>
-  <div class="section-label">▸ ESTACIONES DISPONIBLES</div>
+  <div class="cat-tabs" id="catTabs">
+    <button class="cat-tab active" data-cat="all">TODAS</button>
+    <button class="cat-tab" data-cat="chile">🇨🇱 CHILE</button>
+    <button class="cat-tab" data-cat="reggaeton">🔥 REGGAETÓN</button>
+    <button class="cat-tab" data-cat="cumbia">🪗 CUMBIA</button>
+    <button class="cat-tab" data-cat="hiphop">🎤 HIP-HOP</button>
+    <button class="cat-tab" data-cat="romantica">💕 ROMÁNTICA</button>
+    <button class="cat-tab" data-cat="variada">🎵 VARIADA</button>
+    <button class="cat-tab" data-cat="religion">✝️ CRISTIANA</button>
+  </div>
   <div class="radio-list" id="radioList">
-    <button class="radio-btn active" data-url="https://mdstrm.com/audio/637f68ddce4b1208597d8a86/icecast.audio" data-name="Radio Carolina">
-      <span class="radio-icon">🎵</span>
-      <div class="radio-info">
-        <div class="radio-name">Radio Carolina</div>
-        <div class="radio-freq">99.3 FM · Pop, Hip-Hop, Reggaetón</div>
-      </div>
-      <span class="radio-check">✓</span>
+
+    <!-- 🇨🇱 CHILE -->
+    <button class="radio-btn active" data-cat="chile" data-url="https://mdstrm.com/audio/637f68ddce4b1208597d8a86/icecast.audio" data-name="Radio Carolina">
+      <span class="radio-icon">🎵</span><div class="radio-info"><div class="radio-name">Radio Carolina</div><div class="radio-freq">99.3 FM</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://playerservices.streamtheworld.com/api/livestream-redirect/ROCKPOP.mp3" data-name="Rock & Pop">
-      <span class="radio-icon">🎸</span>
-      <div class="radio-info">
-        <div class="radio-name">Rock & Pop</div>
-        <div class="radio-freq">94.1 FM · Rock</div>
-      </div>
-      <span class="radio-check">✓</span>
+    <button class="radio-btn" data-cat="chile" data-url="https://playerservices.streamtheworld.com/api/livestream-redirect/ROCKPOP.mp3" data-name="Rock & Pop">
+      <span class="radio-icon">🎸</span><div class="radio-info"><div class="radio-name">Rock & Pop</div><div class="radio-freq">94.1 FM</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://playerservices.streamtheworld.com/api/livestream-redirect/LOS40.mp3" data-name="Los 40">
-      <span class="radio-icon">🔥</span>
-      <div class="radio-info">
-        <div class="radio-name">Los 40</div>
-        <div class="radio-freq">FM · Los 40 principales</div>
-      </div>
-      <span class="radio-check">✓</span>
+    <button class="radio-btn" data-cat="chile" data-url="https://playerservices.streamtheworld.com/api/livestream-redirect/LOS40.mp3" data-name="Los 40">
+      <span class="radio-icon">🔥</span><div class="radio-info"><div class="radio-name">Los 40</div><div class="radio-freq">FM Chile</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://playerservices.streamtheworld.com/api/livestream-redirect/CORAZON.mp3" data-name="Radio Corazón">
-      <span class="radio-icon">❤️</span>
-      <div class="radio-info">
-        <div class="radio-name">Radio Corazón</div>
-        <div class="radio-freq">101.3 FM · Baladas y pop</div>
-      </div>
-      <span class="radio-check">✓</span>
+    <button class="radio-btn" data-cat="chile" data-url="https://playerservices.streamtheworld.com/api/livestream-redirect/CORAZON.mp3" data-name="Radio Corazón">
+      <span class="radio-icon">❤️</span><div class="radio-info"><div class="radio-name">Radio Corazón</div><div class="radio-freq">101.3 FM</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/kubqpp4m4ceuv" data-name="World Hits Radio">
-      <span class="radio-icon">🌎</span>
-      <div class="radio-info">
-        <div class="radio-name">World Hits Radio</div>
-        <div class="radio-freq">Éxitos internacionales 24/7</div>
-      </div>
-      <span class="radio-check">✓</span>
+    <button class="radio-btn" data-cat="chile" data-url="https://stream.zeno.fm/mgwm63y28vzuv" data-name="Radio Zonamix Chile">
+      <span class="radio-icon">🇨🇱</span><div class="radio-info"><div class="radio-name">Zonamix Chile</div><div class="radio-freq">Mix chileno</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/x2zuyyf52ueuv" data-name="World Hits Classic">
-      <span class="radio-icon">🎼</span>
-      <div class="radio-info">
-        <div class="radio-name">World Hits Classic</div>
-        <div class="radio-freq">Éxitos clásicos 70s, 80s, 90s</div>
-      </div>
-      <span class="radio-check">✓</span>
+    <button class="radio-btn" data-cat="chile" data-url="https://stream.zeno.fm/upclb6bjbkuuv" data-name="WeedRadio Chilensis">
+      <span class="radio-icon">🍃</span><div class="radio-info"><div class="radio-name">WeedRadio Chilensis</div><div class="radio-freq">Alternativa CL</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/sh3p0pp1m7k8uv" data-name="World Hits Party">
-      <span class="radio-icon">🎉</span>
-      <div class="radio-info">
-        <div class="radio-name">World Hits Party</div>
-        <div class="radio-freq">Electro, Dance, Party</div>
-      </div>
-      <span class="radio-check">✓</span>
+    <button class="radio-btn" data-cat="chile" data-url="https://stream.zeno.fm/zveybqvwwe8uv" data-name="Radio Cosmos Chile">
+      <span class="radio-icon">🌌</span><div class="radio-info"><div class="radio-name">Radio Cosmos Chile</div><div class="radio-freq">Chile</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/e7mxnv6xw7zuv" data-name="World Hits Cumbia">
-      <span class="radio-icon">🪗</span>
-      <div class="radio-info">
-        <div class="radio-name">World Hits Cumbia</div>
-        <div class="radio-freq">Cumbia non-stop</div>
-      </div>
-      <span class="radio-check">✓</span>
+    <button class="radio-btn" data-cat="chile" data-url="https://stream.zeno.fm/8hfvdb6w9zhvv" data-name="Señal Tropical Chile">
+      <span class="radio-icon">🌴</span><div class="radio-info"><div class="radio-name">Señal Tropical Chile</div><div class="radio-freq">Tropical CL</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/pkws6atvm7zuv" data-name="World Hits Rock">
-      <span class="radio-icon">🎸</span>
-      <div class="radio-info">
-        <div class="radio-name">World Hits Rock</div>
-        <div class="radio-freq">Rock clásico y alternativo</div>
-      </div>
-      <span class="radio-check">✓</span>
+    <button class="radio-btn" data-cat="chile" data-url="https://stream.zeno.fm/iv7mxzhwjwmtv" data-name="Radio Avivasur">
+      <span class="radio-icon">🌊</span><div class="radio-info"><div class="radio-name">Radio Avivasur</div><div class="radio-freq">Sur de Chile</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/wrdtmra5cveuv" data-name="World Hits Urban">
-      <span class="radio-icon">🏙️</span>
-      <div class="radio-info">
-        <div class="radio-name">World Hits Urban</div>
-        <div class="radio-freq">Hip-hop, Reggaetón, Urban</div>
-      </div>
-      <span class="radio-check">✓</span>
+    <button class="radio-btn" data-cat="chile" data-url="https://stream.zeno.fm/ka7z13d9hvauv" data-name="JCU Streaming Chile">
+      <span class="radio-icon">📻</span><div class="radio-info"><div class="radio-name">JCU Streaming Chile</div><div class="radio-freq">En vivo CL</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/ufobv2rfkrwuv" data-name="Radio Latino 24h">
-      <span class="radio-icon">🌎</span>
-      <div class="radio-info"><div class="radio-name">Radio Latino 24h</div><div class="radio-freq">Latino non-stop</div></div>
-      <span class="radio-check">✓</span>
+    <button class="radio-btn" data-cat="chile" data-url="https://stream.zeno.fm/q6an2y1t0nhvv" data-name="Radio Discotheque Chile">
+      <span class="radio-icon">🪩</span><div class="radio-info"><div class="radio-name">Discotheque Chile</div><div class="radio-freq">Electro · Dance</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/upclb6bjbkuuv" data-name="WeedRadio Chilensis">
-      <span class="radio-icon">🍃</span>
-      <div class="radio-info"><div class="radio-name">WeedRadio Chilensis</div><div class="radio-freq">Alternativa chilena</div></div>
-      <span class="radio-check">✓</span>
+    <button class="radio-btn" data-cat="chile" data-url="https://stream.zeno.fm/sgbpeccnfuhvv" data-name="Chile Latino">
+      <span class="radio-icon">🇨🇱</span><div class="radio-info"><div class="radio-name">Chile Latino</div><div class="radio-freq">Latino desde CL</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/k8yuexp35k0uv" data-name="Viejitas Pero Bonitas">
-      <span class="radio-icon">🎙️</span>
-      <div class="radio-info"><div class="radio-name">Viejitas Pero Bonitas</div><div class="radio-freq">Clásicos de siempre</div></div>
-      <span class="radio-check">✓</span>
+
+    <!-- 🔥 REGGAETÓN -->
+    <button class="radio-btn" data-cat="reggaeton" data-url="https://stream.zeno.fm/hf24gpx2p0quv" data-name="Capital del Reggaetón">
+      <span class="radio-icon">🔥</span><div class="radio-info"><div class="radio-name">Capital Reggaetón</div><div class="radio-freq">24/7</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/p5sbzmb7miduv" data-name="Cumbias Sonideras">
-      <span class="radio-icon">🪗</span>
-      <div class="radio-info"><div class="radio-name">Cumbias Sonideras</div><div class="radio-freq">Cumbia mexicana</div></div>
-      <span class="radio-check">✓</span>
+    <button class="radio-btn" data-cat="reggaeton" data-url="https://stream.zeno.fm/3m0kdgcpq18uv" data-name="Reggaetón Éxitos">
+      <span class="radio-icon">🎤</span><div class="radio-info"><div class="radio-name">Reggaetón Éxitos</div><div class="radio-freq">Éxitos de hoy</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/ut46b6drneruv" data-name="Cumbia Radio">
-      <span class="radio-icon">💃</span>
-      <div class="radio-info"><div class="radio-name">Cumbia Radio</div><div class="radio-freq">Cumbia non-stop</div></div>
-      <span class="radio-check">✓</span>
+    <button class="radio-btn" data-cat="reggaeton" data-url="https://stream.zeno.fm/f2h4o9slkiruv" data-name="Reggaetón Viejo">
+      <span class="radio-icon">📼</span><div class="radio-info"><div class="radio-name">Reggaetón Viejo</div><div class="radio-freq">Old school</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/ux9p55q8qeruv" data-name="Romántica Radio">
-      <span class="radio-icon">💕</span>
-      <div class="radio-info"><div class="radio-name">Romántica Radio</div><div class="radio-freq">Baladas y romanticas</div></div>
-      <span class="radio-check">✓</span>
+    <button class="radio-btn" data-cat="reggaeton" data-url="https://stream.zeno.fm/0zwpepx0bfhvv" data-name="Reggaetón Old School">
+      <span class="radio-icon">🏆</span><div class="radio-info"><div class="radio-name">Reggaetón Old School</div><div class="radio-freq">Clásicos</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/gu8g4kqpn3quv" data-name="Funk Brasil">
-      <span class="radio-icon">🇧🇷</span>
-      <div class="radio-info"><div class="radio-name">Funk Brasil</div><div class="radio-freq">Funk carioca</div></div>
-      <span class="radio-check">✓</span>
+    <button class="radio-btn" data-cat="reggaeton" data-url="https://stream.zeno.fm/qmhf2yd9dm0uv" data-name="100% Reggaeton Radio">
+      <span class="radio-icon">💯</span><div class="radio-info"><div class="radio-name">100% Reggaeton</div><div class="radio-freq">Puro reggaetón</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/hf24gpx2p0quv" data-name="Capital del Reggaetón">
-      <span class="radio-icon">🔥</span>
-      <div class="radio-info"><div class="radio-name">Capital del Reggaetón</div><div class="radio-freq">Reggaetón 24/7</div></div>
-      <span class="radio-check">✓</span>
+    <button class="radio-btn" data-cat="reggaeton" data-url="https://stream.zeno.fm/nfs90gy7pkhvv" data-name="Santos FM Reggaetón">
+      <span class="radio-icon">✨</span><div class="radio-info"><div class="radio-name">Santos FM</div><div class="radio-freq">Reggaetón dorado</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/3m0kdgcpq18uv" data-name="Reggaetón Éxitos">
-      <span class="radio-icon">🎤</span>
-      <div class="radio-info"><div class="radio-name">Reggaetón Éxitos</div><div class="radio-freq">Éxitos de hoy</div></div>
-      <span class="radio-check">✓</span>
+    <button class="radio-btn" data-cat="reggaeton" data-url="https://stream.zeno.fm/wrdtmra5cveuv" data-name="World Hits Urban">
+      <span class="radio-icon">🏙️</span><div class="radio-info"><div class="radio-name">World Hits Urban</div><div class="radio-freq">Urban · Trap</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/q6an2y1t0nhvv" data-name="Radio Discotheque Chile">
-      <span class="radio-icon">🪩</span>
-      <div class="radio-info"><div class="radio-name">Radio Discotheque Chile</div><div class="radio-freq">Electro y dance</div></div>
-      <span class="radio-check">✓</span>
+    <button class="radio-btn" data-cat="reggaeton" data-url="https://stream.zeno.fm/ufobv2rfkrwuv" data-name="Radio Latino 24h">
+      <span class="radio-icon">🌎</span><div class="radio-info"><div class="radio-name">Radio Latino 24h</div><div class="radio-freq">Latino non-stop</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/f2h4o9slkiruv" data-name="Reggaetón Viejo">
-      <span class="radio-icon">📼</span>
-      <div class="radio-info"><div class="radio-name">Reggaetón Viejo</div><div class="radio-freq">Old school</div></div>
-      <span class="radio-check">✓</span>
+
+    <!-- 🪗 CUMBIA -->
+    <button class="radio-btn" data-cat="cumbia" data-url="https://stream.zeno.fm/e7mxnv6xw7zuv" data-name="World Hits Cumbia">
+      <span class="radio-icon">🪗</span><div class="radio-info"><div class="radio-name">World Hits Cumbia</div><div class="radio-freq">Cumbia non-stop</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/n6cgg1q8zs8uv" data-name="Radio La Rumba Latina">
-      <span class="radio-icon">🥁</span>
-      <div class="radio-info"><div class="radio-name">Radio La Rumba Latina</div><div class="radio-freq">Salsa y latina</div></div>
-      <span class="radio-check">✓</span>
+    <button class="radio-btn" data-cat="cumbia" data-url="https://stream.zeno.fm/p5sbzmb7miduv" data-name="Cumbias Sonideras">
+      <span class="radio-icon">🎺</span><div class="radio-info"><div class="radio-name">Cumbias Sonideras</div><div class="radio-freq">Cumbia mexicana</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/0zwpepx0bfhvv" data-name="Reggaetón Old School">
-      <span class="radio-icon">🏆</span>
-      <div class="radio-info"><div class="radio-name">Reggaetón Old School</div><div class="radio-freq">Clásicos del género</div></div>
-      <span class="radio-check">✓</span>
+    <button class="radio-btn" data-cat="cumbia" data-url="https://stream.zeno.fm/ut46b6drneruv" data-name="Cumbia Radio">
+      <span class="radio-icon">💃</span><div class="radio-info"><div class="radio-name">Cumbia Radio</div><div class="radio-freq">Cumbia 24/7</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/vx22zfx741zuv" data-name="Radio Prendida">
-      <span class="radio-icon">⚡</span>
-      <div class="radio-info"><div class="radio-name">Radio Prendida</div><div class="radio-freq">Música variada</div></div>
-      <span class="radio-check">✓</span>
+    <button class="radio-btn" data-cat="cumbia" data-url="https://stream.zeno.fm/n6cgg1q8zs8uv" data-name="Radio La Rumba Latina">
+      <span class="radio-icon">🥁</span><div class="radio-info"><div class="radio-name">La Rumba Latina</div><div class="radio-freq">Salsa · Cumbia</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/1siatybgg7otv" data-name="Radio Ranchera y Cumbia">
-      <span class="radio-icon">🤠</span>
-      <div class="radio-info"><div class="radio-name">Radio Ranchera y Cumbia</div><div class="radio-freq">Rancheras y cumbia</div></div>
-      <span class="radio-check">✓</span>
+    <button class="radio-btn" data-cat="cumbia" data-url="https://stream.zeno.fm/1siatybgg7otv" data-name="Radio Ranchera y Cumbia">
+      <span class="radio-icon">🤠</span><div class="radio-info"><div class="radio-name">Ranchera y Cumbia</div><div class="radio-freq">Rancheras</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/mgwm63y28vzuv" data-name="Radio Zonamix Chile">
-      <span class="radio-icon">🇨🇱</span>
-      <div class="radio-info"><div class="radio-name">Radio Zonamix Chile</div><div class="radio-freq">Mix chileno</div></div>
-      <span class="radio-check">✓</span>
+    <button class="radio-btn" data-cat="cumbia" data-url="https://stream.zeno.fm/tvt49fd841zuv" data-name="Guaracha Mixxx 24-7">
+      <span class="radio-icon">🎶</span><div class="radio-info"><div class="radio-name">Guaracha Mixxx</div><div class="radio-freq">Guaracha 24/7</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/vahqwcqe508uv" data-name="Radio Románticamente Tuya">
-      <span class="radio-icon">🌹</span>
-      <div class="radio-info"><div class="radio-name">Radio Románticamente Tuya</div><div class="radio-freq">Solo baladas</div></div>
-      <span class="radio-check">✓</span>
+    <button class="radio-btn" data-cat="cumbia" data-url="https://stream.zeno.fm/sfqwqh7vd6quv" data-name="La Tronadora">
+      <span class="radio-icon">⚡</span><div class="radio-info"><div class="radio-name">La Tronadora</div><div class="radio-freq">Cumbia · Tropical</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/4wx4h7dgyrhvv" data-name="La Rockola Radio">
-      <span class="radio-icon">🎵</span>
-      <div class="radio-info"><div class="radio-name">La Rockola Radio</div><div class="radio-freq">Rockola clásica</div></div>
-      <span class="radio-check">✓</span>
+    <button class="radio-btn" data-cat="cumbia" data-url="https://stream.zeno.fm/ie8zrtpn7i5vv" data-name="MamaV Reggae Vibes">
+      <span class="radio-icon">🌿</span><div class="radio-info"><div class="radio-name">MamaV Reggae Vibes</div><div class="radio-freq">Reggae · Tropical</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/bt9ru8zhcq8uv" data-name="Radio Classic Pop Music">
-      <span class="radio-icon">🎹</span>
-      <div class="radio-info"><div class="radio-name">Radio Classic Pop Music</div><div class="radio-freq">Pop clásico</div></div>
-      <span class="radio-check">✓</span>
+
+    <!-- 🎤 HIP-HOP -->
+    <button class="radio-btn" data-cat="hiphop" data-url="https://stream.zeno.fm/ovboa8ho9fzuv" data-name="Rap Chileno">
+      <span class="radio-icon">🎙️</span><div class="radio-info"><div class="radio-name">Rap Chileno</div><div class="radio-freq">Hip-hop nacional</div></div><span class="radio-check">✓</span>
     </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/ovboa8ho9fzuv" data-name="Rap Chileno">
-      <span class="radio-icon">🎙️</span>
-      <div class="radio-info"><div class="radio-name">Rap Chileno</div><div class="radio-freq">Hip-hop nacional</div></div>
+    <button class="radio-btn" data-cat="hiphop" data-url="https://stream.zeno.fm/rdbeyummmy8uv" data-name="Chicano Rap">
+      <span class="radio-icon">🤙</span><div class="radio-info"><div class="radio-name">Chicano Rap</div><div class="radio-freq">Rap chicano</div></div><span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-cat="hiphop" data-url="https://stream.zeno.fm/71dst9scfv8uv" data-name="Hip Hop e Rap 90">
+      <span class="radio-icon">📻</span><div class="radio-info"><div class="radio-name">Hip Hop e Rap 90</div><div class="radio-freq">Hip-hop 90s</div></div><span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-cat="hiphop" data-url="https://stream.zeno.fm/it0y9hw3enauv" data-name="Elgenero.com">
+      <span class="radio-icon">🎧</span><div class="radio-info"><div class="radio-name">Elgenero.com</div><div class="radio-freq">Urbano · Trap</div></div><span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-cat="hiphop" data-url="https://stream.zeno.fm/gu8g4kqpn3quv" data-name="Funk Brasil">
+      <span class="radio-icon">🇧🇷</span><div class="radio-info"><div class="radio-name">Funk Brasil</div><div class="radio-freq">Funk carioca</div></div><span class="radio-check">✓</span>
+    </button>
+
+    <!-- 💕 ROMÁNTICA -->
+    <button class="radio-btn" data-cat="romantica" data-url="https://stream.zeno.fm/ux9p55q8qeruv" data-name="Romántica Radio">
+      <span class="radio-icon">💕</span><div class="radio-info"><div class="radio-name">Romántica Radio</div><div class="radio-freq">Baladas</div></div><span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-cat="romantica" data-url="https://stream.zeno.fm/vahqwcqe508uv" data-name="Radio Románticamente Tuya">
+      <span class="radio-icon">🌹</span><div class="radio-info"><div class="radio-name">Románticamente Tuya</div><div class="radio-freq">Solo baladas</div></div><span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-cat="romantica" data-url="https://stream.zeno.fm/k8yuexp35k0uv" data-name="Viejitas Pero Bonitas">
+      <span class="radio-icon">🎙️</span><div class="radio-info"><div class="radio-name">Viejitas Pero Bonitas</div><div class="radio-freq">Clásicos</div></div><span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-cat="romantica" data-url="https://stream.zeno.fm/4wx4h7dgyrhvv" data-name="La Rockola Radio">
+      <span class="radio-icon">🎵</span><div class="radio-info"><div class="radio-name">La Rockola Radio</div><div class="radio-freq">Rockola</div></div><span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-cat="romantica" data-url="https://stream.zeno.fm/6nv9w64zs4zuv" data-name="Viva El Mariachi">
+      <span class="radio-icon">🎺</span><div class="radio-info"><div class="radio-name">Viva El Mariachi</div><div class="radio-freq">Mariachi</div></div><span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-cat="romantica" data-url="https://stream.zeno.fm/dg69bex4gxquv" data-name="Amistad Stereo">
+      <span class="radio-icon">🤝</span><div class="radio-info"><div class="radio-name">Amistad Stereo</div><div class="radio-freq">Romántica</div></div><span class="radio-check">✓</span>
+    </button>
+
+    <!-- 🎵 VARIADA -->
+    <button class="radio-btn" data-cat="variada" data-url="https://stream.zeno.fm/kubqpp4m4ceuv" data-name="World Hits Radio">
+      <span class="radio-icon">🌎</span><div class="radio-info"><div class="radio-name">World Hits Radio</div><div class="radio-freq">Internacional</div></div><span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-cat="variada" data-url="https://stream.zeno.fm/x2zuyyf52ueuv" data-name="World Hits Classic">
+      <span class="radio-icon">🎼</span><div class="radio-info"><div class="radio-name">World Hits Classic</div><div class="radio-freq">70s·80s·90s</div></div><span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-cat="variada" data-url="https://stream.zeno.fm/sh3p0pp1m7k8uv" data-name="World Hits Party">
+      <span class="radio-icon">🎉</span><div class="radio-info"><div class="radio-name">World Hits Party</div><div class="radio-freq">Dance · Party</div></div><span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-cat="variada" data-url="https://stream.zeno.fm/pkws6atvm7zuv" data-name="World Hits Rock">
+      <span class="radio-icon">🎸</span><div class="radio-info"><div class="radio-name">World Hits Rock</div><div class="radio-freq">Rock clásico</div></div><span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-cat="variada" data-url="https://stream.zeno.fm/bt9ru8zhcq8uv" data-name="Radio Classic Pop Music">
+      <span class="radio-icon">🎹</span><div class="radio-info"><div class="radio-name">Classic Pop Music</div><div class="radio-freq">Pop clásico</div></div><span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-cat="variada" data-url="https://stream.zeno.fm/vx22zfx741zuv" data-name="Radio Prendida">
+      <span class="radio-icon">⚡</span><div class="radio-info"><div class="radio-name">Radio Prendida</div><div class="radio-freq">Variada</div></div><span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-cat="variada" data-url="https://sonicpanel.cloudstreaming.eu/9966/" data-name="Radio Bknes Juvenil">
+      <span class="radio-icon">🔊</span><div class="radio-info"><div class="radio-name">Radio Bknes Juvenil</div><div class="radio-freq">Juvenil CL</div></div><span class="radio-check">✓</span>
+    </button>
+
+    <!-- ✝️ CRISTIANA -->
+    <button class="radio-btn" data-cat="religion" data-url="https://stream.zeno.fm/x9gbv90hewzuv" data-name="Radio Templo La Hermosa">
+      <span class="radio-icon">✝️</span><div class="radio-info"><div class="radio-name">Templo La Hermosa</div><div class="radio-freq">Cristiana</div></div><span class="radio-check">✓</span>
+    </button>
+    <button class="radio-btn" data-cat="religion" data-url="https://stream.zeno.fm/obpvb99vbrhvv" data-name="Sion Emisora Chile">
+      <span class="radio-icon">🙏</span><div class="radio-info"><div class="radio-name">Sion Emisora Chile</div><div class="radio-freq">Cristiana CL</div></div><span class="radio-check">✓</span>
+    </button>
       <span class="radio-check">✓</span>
     </button>
     <button class="radio-btn" data-url="https://stream.zeno.fm/it0y9hw3enauv" data-name="Elgenero.com">
@@ -1087,6 +1091,22 @@ function applyDeleted() {
 }
 applyDeleted();
 initRadioButtons();
+
+// ── Filtro por categoría ─────────────────────────────────────────
+document.querySelectorAll('.cat-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const cat = tab.dataset.cat;
+    radioList.querySelectorAll('.radio-btn').forEach(btn => {
+      if (cat === 'all' || btn.dataset.cat === cat) {
+        btn.style.display = '';
+      } else {
+        btn.style.display = 'none';
+      }
+    });
+  });
+});
 
 // ── Status Bar ───────────────────────────────────────────────────
 const statVol  = document.getElementById('statVol');
