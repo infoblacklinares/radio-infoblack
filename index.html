@@ -418,6 +418,53 @@
   }
 
   svg { display: block; }
+
+  /* ── LOCAL MUSIC SECTION ── */
+  .cat-tab.local-tab { color: var(--accent3); border-color: #003320; }
+  .cat-tab.local-tab.active { background: #003320; border-color: var(--accent3); color: var(--accent3); box-shadow: 0 0 8px #00ffcc40; }
+
+  #localSection { display: none; padding: 6px 4px 4px; }
+  .local-upload-area {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    padding: 20px 16px; border: 2px dashed #1a3a5c; border-radius: 8px;
+    margin: 0 0 8px; cursor: pointer; transition: border-color .2s, background .2s;
+    background: #020608;
+  }
+  .local-upload-area:hover { border-color: var(--accent3); background: #001a10; }
+  .local-upload-icon { font-size: 32px; }
+  .local-upload-label { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--accent3); letter-spacing: 2px; }
+  .local-upload-sub { font-family: 'Rajdhani', sans-serif; font-size: 11px; color: #2a5040; }
+  #localFileInput { display: none; }
+
+  .local-controls { display: flex; gap: 6px; margin-bottom: 8px; }
+  .local-ctrl-btn {
+    flex: 1; padding: 9px; background: #0a1628; border: 1px solid #0f2540;
+    border-radius: 6px; color: var(--muted); font-size: 17px; cursor: pointer;
+    transition: all .2s; display: flex; align-items: center; justify-content: center;
+  }
+  .local-ctrl-btn:hover { border-color: var(--accent3); color: var(--accent3); }
+
+  .local-track-list { display: flex; flex-direction: column; gap: 4px; }
+  .local-track {
+    display: flex; flex-direction: row; align-items: center;
+    background: #111827; border: none; border-radius: 8px;
+    cursor: pointer; text-align: left; width: 100%; position: relative;
+    min-height: 64px; overflow: hidden; transition: background .15s;
+  }
+  .local-track:hover { background: #1c2a3a; }
+  .local-track.active { background: #0d1f33; box-shadow: inset 3px 0 0 var(--accent3); }
+  .local-track-num {
+    flex-shrink: 0; width: 56px; height: 64px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Share Tech Mono', monospace; font-size: 17px; color: #1a3a50;
+    background: #0a1628; border-radius: 8px 0 0 8px;
+  }
+  .local-track.active .local-track-num { color: var(--accent3); font-size: 20px; background: linear-gradient(135deg, #001f20, #003320); }
+  .local-track-info { flex: 1; min-width: 0; padding: 10px 14px; }
+  .local-track-name { font-size: 14px; font-weight: 700; color: #e8f4ff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: 'Rajdhani', sans-serif; }
+  .local-track.active .local-track-name { color: var(--accent3); }
+  .local-track-dur { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: #4a7090; margin-top: 3px; }
+  .local-empty { text-align: center; padding: 24px 16px; font-family: 'Share Tech Mono', monospace; font-size: 10px; color: #1a3040; letter-spacing: 2px; }
 </style>
 </head>
 <body>
@@ -465,6 +512,7 @@
     <button class="cat-tab" data-cat="romantica">💕 ROMÁNTICA</button>
     <button class="cat-tab" data-cat="variada">🎵 VARIADA</button>
     <button class="cat-tab" data-cat="religion">✝️ CRISTIANA</button>
+    <button class="cat-tab local-tab" data-cat="local">🎵 LOCAL</button>
   </div>
   <div class="radio-list" id="radioList">
 
@@ -802,6 +850,24 @@
     <button class="radio-btn" data-cat="variada" data-url="https://stream.zeno.fm/uxxf2xaxdzzuv" data-name="Radio Tango">
       <span class="radio-icon">🕺</span><div class="radio-info"><div class="radio-name">Radio Tango</div><div class="radio-freq">Tango · Argentina</div></div><span class="radio-check">✓</span>
     </button>
+  </div>
+
+  <!-- SECCIÓN MÚSICA LOCAL -->
+  <div id="localSection">
+    <input type="file" id="localFileInput" accept="audio/*" multiple>
+    <div class="local-upload-area" id="localUploadArea">
+      <span class="local-upload-icon">🎵</span>
+      <span class="local-upload-label">CARGAR CANCIONES</span>
+      <span class="local-upload-sub">MP3, WAV, OGG · desde tu teléfono</span>
+    </div>
+    <div class="local-controls" id="localControls" style="display:none">
+      <button class="local-ctrl-btn" id="localPrevBtn" title="Anterior">⏮</button>
+      <button class="local-ctrl-btn" id="localShuffleBtn" title="Aleatorio">🔀</button>
+      <button class="local-ctrl-btn" id="localNextBtn" title="Siguiente">⏭</button>
+    </div>
+    <div class="local-track-list" id="localTrackList">
+      <div class="local-empty" id="localEmpty">SIN CANCIONES · CARGA TU MÚSICA ARRIBA</div>
+    </div>
   </div>
 
   <div class="custom-url-wrap">
@@ -1332,11 +1398,16 @@ function addFavButtons() {
 
 // ── Filtro por categoría ─────────────────────────────────────────
 function applyFilter(cat) {
-  radioList.querySelectorAll('.radio-btn').forEach(btn => {
-    if (cat === 'all') btn.style.display = '';
-    else if (cat === 'fav') btn.style.display = btn.dataset.fav === '1' ? '' : 'none';
-    else btn.style.display = btn.dataset.cat === cat ? '' : 'none';
-  });
+  const isLocal = cat === 'local';
+  radioList.style.display = isLocal ? 'none' : '';
+  localSection.style.display = isLocal ? '' : 'none';
+  if (!isLocal) {
+    radioList.querySelectorAll('.radio-btn').forEach(btn => {
+      if (cat === 'all') btn.style.display = '';
+      else if (cat === 'fav') btn.style.display = btn.dataset.fav === '1' ? '' : 'none';
+      else btn.style.display = btn.dataset.cat === cat ? '' : 'none';
+    });
+  }
 }
 
 document.querySelectorAll('.cat-tab').forEach(tab => {
@@ -1345,6 +1416,113 @@ document.querySelectorAll('.cat-tab').forEach(tab => {
     tab.classList.add('active');
     applyFilter(tab.dataset.cat);
   });
+});
+
+// ── LOCAL MUSIC ──────────────────────────────────────────────────
+let localMode = false;
+let localTracks = [];
+let localIdx = -1;
+let localShuffled = false;
+
+const localSection    = document.getElementById('localSection');
+const localFileInput  = document.getElementById('localFileInput');
+const localUploadArea = document.getElementById('localUploadArea');
+const localTrackList  = document.getElementById('localTrackList');
+const localEmpty      = document.getElementById('localEmpty');
+const localControls   = document.getElementById('localControls');
+const localPrevBtn    = document.getElementById('localPrevBtn');
+const localNextBtn    = document.getElementById('localNextBtn');
+const localShuffleBtn = document.getElementById('localShuffleBtn');
+
+localUploadArea.addEventListener('click', () => localFileInput.click());
+
+localFileInput.addEventListener('change', e => {
+  const files = Array.from(e.target.files);
+  if (!files.length) return;
+  localTracks.forEach(t => URL.revokeObjectURL(t.url));
+  localTracks = files.map(f => ({
+    file: f,
+    url: URL.createObjectURL(f),
+    name: f.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' '),
+    dur: '--:--'
+  }));
+  localIdx = -1;
+  renderLocalTracks();
+  localTracks.forEach((t, i) => {
+    const a = new Audio(t.url);
+    a.addEventListener('loadedmetadata', () => {
+      const m = Math.floor(a.duration / 60);
+      const s = String(Math.floor(a.duration % 60)).padStart(2, '0');
+      localTracks[i].dur = m + ':' + s;
+      const el = localTrackList.querySelector(`[data-local-idx="${i}"] .local-track-dur`);
+      if (el) el.textContent = localTracks[i].dur;
+    });
+  });
+  localFileInput.value = '';
+});
+
+function renderLocalTracks() {
+  localEmpty.style.display = localTracks.length ? 'none' : '';
+  localControls.style.display = localTracks.length ? 'flex' : 'none';
+  localTrackList.querySelectorAll('.local-track').forEach(el => el.remove());
+  localTracks.forEach((t, i) => {
+    const el = document.createElement('button');
+    el.className = 'local-track' + (i === localIdx ? ' active' : '');
+    el.dataset.localIdx = i;
+    el.innerHTML = `
+      <div class="local-track-num">${i === localIdx ? '▶' : (i + 1)}</div>
+      <div class="local-track-info">
+        <div class="local-track-name">${t.name}</div>
+        <div class="local-track-dur">${t.dur}</div>
+      </div>`;
+    el.addEventListener('click', () => playLocalTrack(i));
+    localTrackList.appendChild(el);
+  });
+}
+
+function playLocalTrack(i) {
+  localIdx = i;
+  localMode = true;
+  radioEl.pause();
+  radioEl.src = localTracks[i].url;
+  radioEl.play().then(() => {
+    isPlaying = true;
+    setIcon(true);
+    setWave(true);
+    trackTitle.textContent = localTracks[i].name;
+    trackSub.textContent = '▶ REPRODUCIENDO LOCAL';
+    liveLabel.textContent = '◈ MIS CANCIONES';
+    stopRing();
+    startRing();
+  }).catch(() => {
+    trackSub.textContent = '⚠ ERROR AL REPRODUCIR';
+  });
+  renderLocalTracks();
+  // Deselect radio buttons
+  radioList.querySelectorAll('.radio-btn').forEach(b => b.classList.remove('active'));
+}
+
+radioEl.addEventListener('ended', () => {
+  if (localMode && localTracks.length > 1) {
+    const next = localShuffled
+      ? Math.floor(Math.random() * localTracks.length)
+      : (localIdx + 1) % localTracks.length;
+    playLocalTrack(next);
+  }
+});
+
+localPrevBtn.addEventListener('click', () => {
+  if (!localTracks.length) return;
+  playLocalTrack((localIdx - 1 + localTracks.length) % localTracks.length);
+});
+localNextBtn.addEventListener('click', () => {
+  if (!localTracks.length) return;
+  playLocalTrack((localIdx + 1) % localTracks.length);
+});
+localShuffleBtn.addEventListener('click', () => {
+  localShuffled = !localShuffled;
+  localShuffleBtn.style.color = localShuffled ? 'var(--accent3)' : '';
+  localShuffleBtn.style.borderColor = localShuffled ? 'var(--accent3)' : '';
 });
 
 // ── Status Bar ───────────────────────────────────────────────────
