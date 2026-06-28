@@ -965,6 +965,7 @@ const btnPlay     = document.getElementById('btnPlay');
 const iconPlay    = document.getElementById('iconPlay');
 const trackTitle  = document.getElementById('trackTitle');
 const trackSub    = document.getElementById('trackSub');
+const liveLabel   = document.getElementById('liveLabel');
 const waveformEl  = document.getElementById('waveform');
 const adOverlay   = document.getElementById('adOverlay');
 const adText      = document.getElementById('adText');
@@ -977,6 +978,15 @@ const radioList   = document.getElementById('radioList');
 const btnCustom   = document.getElementById('btnCustom');
 const customUrl   = document.getElementById('customUrl');
 const adWaveEl    = document.getElementById('adWave');
+const localSection    = document.getElementById('localSection');
+const localFileInput  = document.getElementById('localFileInput');
+const localUploadArea = document.getElementById('localUploadArea');
+const localTrackList  = document.getElementById('localTrackList');
+const localEmpty      = document.getElementById('localEmpty');
+const localControls   = document.getElementById('localControls');
+const localPrevBtn    = document.getElementById('localPrevBtn');
+const localNextBtn    = document.getElementById('localNextBtn');
+const localShuffleBtn = document.getElementById('localShuffleBtn');
 
 let isPlaying    = false;
 let adActive     = false;
@@ -1423,16 +1433,6 @@ let localMode = false;
 let localTracks = [];
 let localIdx = -1;
 let localShuffled = false;
-
-const localSection    = document.getElementById('localSection');
-const localFileInput  = document.getElementById('localFileInput');
-const localUploadArea = document.getElementById('localUploadArea');
-const localTrackList  = document.getElementById('localTrackList');
-const localEmpty      = document.getElementById('localEmpty');
-const localControls   = document.getElementById('localControls');
-const localPrevBtn    = document.getElementById('localPrevBtn');
-const localNextBtn    = document.getElementById('localNextBtn');
-const localShuffleBtn = document.getElementById('localShuffleBtn');
 
 localUploadArea.addEventListener('click', () => localFileInput.click());
 
