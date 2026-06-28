@@ -127,7 +127,7 @@
     display: flex; align-items: center; justify-content: space-between;
   }
   .screen-title {
-    font-family:'Share Tech Mono',monospace; font-size:11px;
+    font-family:'Share Tech Mono',monospace; font-size:9px;
     letter-spacing:3px; color:var(--accent); text-transform:uppercase;
   }
   .screen-dots { display:flex; gap:5px; }
@@ -137,21 +137,10 @@
   .sd-g { background:var(--accent3); box-shadow:0 0 4px var(--accent3); }
 
   .section-label {
-    font-family: 'Share Tech Mono', monospace; font-size: 11px;
+    font-family: 'Share Tech Mono', monospace; font-size: 9px;
     letter-spacing: 2px; color: var(--muted); text-transform: uppercase;
     padding: 8px 14px 4px;
   }
-  .fav-btn {
-    position: absolute; top: 0; right: 0; bottom: 0;
-    width: 38px; background: transparent; border: none;
-    font-size: 18px; cursor: pointer; color: #2a3a50;
-    display: flex; align-items: center; justify-content: center;
-    transition: color .2s, transform .2s; z-index: 2;
-    padding-right: 6px;
-  }
-  .fav-btn:hover { color: #f0c040; transform: scale(1.2); }
-  .fav-btn.active { color: #f0c040; }
-  .radio-btn.active::after { right: 46px; }
   .radio-list {
     display: flex;
     flex-direction: column;
@@ -233,13 +222,11 @@
   }
   .cat-tabs::-webkit-scrollbar { display: none; }
   .cat-tab {
-    flex-shrink: 0; font-family: 'Share Tech Mono', monospace; font-size: 12px;
-    letter-spacing: 1px; padding: 6px 12px; border-radius: 4px;
+    flex-shrink: 0; font-family: 'Share Tech Mono', monospace; font-size: 8px;
+    letter-spacing: 1px; padding: 4px 10px; border-radius: 3px;
     border: 1px solid #0a2030; background: transparent;
     color: var(--muted); cursor: pointer; transition: all .15s; white-space: nowrap;
   }
-  .cat-tab.fav-tab { color: #f0c040; border-color: #3a2a00; }
-  .cat-tab.fav-tab.active { background: #3a2000; border-color: #f0c040; color: #f0c040; box-shadow: 0 0 8px #f0c04060; }
   .cat-tab:hover { border-color: var(--accent2); color: var(--accent); }
   .cat-tab.active { background: var(--accent2); border-color: var(--accent2); color: #fff; box-shadow: 0 0 8px #0066ff60; }
 
@@ -457,7 +444,6 @@
   </div>
   <div class="cat-tabs" id="catTabs">
     <button class="cat-tab active" data-cat="all">TODAS</button>
-    <button class="cat-tab fav-tab" data-cat="fav">⭐ FAV</button>
     <button class="cat-tab" data-cat="chile">🇨🇱 CHILE</button>
     <button class="cat-tab" data-cat="reggaeton">🔥 REGGAETÓN</button>
     <button class="cat-tab" data-cat="cumbia">🪗 CUMBIA</button>
@@ -1189,7 +1175,6 @@ btnCustom.addEventListener('click', () => {
   newBtn.innerHTML = `<span class="radio-icon">📡</span><div class="radio-info"><div class="radio-name">Stream personalizado</div><div class="radio-freq">${url.substring(0,40)}...</div></div><span class="radio-check">✓</span>`;
   radioList.appendChild(newBtn);
   initRadioButtons();
-  addFavButtons();
   currentUrl  = url;
   currentName = 'Stream personalizado';
   trackTitle.textContent = currentName;
@@ -1287,63 +1272,20 @@ function applyDeleted() {
 }
 applyDeleted();
 initRadioButtons();
-addFavButtons();
-
-// ── Favoritos ────────────────────────────────────────────────────
-const FAV_KEY = 'ib_fav_radios';
-function getFavs() { return JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); }
-function saveFavs(list) { localStorage.setItem(FAV_KEY, JSON.stringify(list)); }
-
-function applyFavs() {
-  const favs = getFavs();
-  radioList.querySelectorAll('.radio-btn').forEach(btn => {
-    btn.dataset.fav = favs.includes(btn.dataset.url) ? '1' : '';
-    const fb = btn.querySelector('.fav-btn');
-    if (fb) fb.classList.toggle('active', btn.dataset.fav === '1');
-  });
-}
-
-function addFavButtons() {
-  radioList.querySelectorAll('.radio-btn').forEach(btn => {
-    if (btn.querySelector('.fav-btn')) return;
-    const fb = document.createElement('button');
-    fb.className = 'fav-btn';
-    fb.title = 'Agregar a favoritos';
-    fb.innerHTML = '☆';
-    const favs = getFavs();
-    if (favs.includes(btn.dataset.url)) { fb.classList.add('active'); fb.innerHTML = '★'; btn.dataset.fav = '1'; }
-    fb.addEventListener('click', e => {
-      e.stopPropagation();
-      let list = getFavs();
-      if (list.includes(btn.dataset.url)) {
-        list = list.filter(u => u !== btn.dataset.url);
-        fb.classList.remove('active'); fb.innerHTML = '☆'; btn.dataset.fav = '';
-      } else {
-        list.push(btn.dataset.url);
-        fb.classList.add('active'); fb.innerHTML = '★'; btn.dataset.fav = '1';
-      }
-      saveFavs(list);
-      const activeTab = document.querySelector('.cat-tab.active');
-      if (activeTab && activeTab.dataset.cat === 'fav') applyFilter('fav');
-    });
-    btn.appendChild(fb);
-  });
-}
 
 // ── Filtro por categoría ─────────────────────────────────────────
-function applyFilter(cat) {
-  radioList.querySelectorAll('.radio-btn').forEach(btn => {
-    if (cat === 'all') btn.style.display = '';
-    else if (cat === 'fav') btn.style.display = btn.dataset.fav === '1' ? '' : 'none';
-    else btn.style.display = btn.dataset.cat === cat ? '' : 'none';
-  });
-}
-
 document.querySelectorAll('.cat-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
-    applyFilter(tab.dataset.cat);
+    const cat = tab.dataset.cat;
+    radioList.querySelectorAll('.radio-btn').forEach(btn => {
+      if (cat === 'all' || btn.dataset.cat === cat) {
+        btn.style.display = '';
+      } else {
+        btn.style.display = 'none';
+      }
+    });
   });
 });
 
