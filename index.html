@@ -356,6 +356,13 @@
   }
   .btn-play:hover { transform: scale(1.06); box-shadow: 0 0 30px #0066ffaa, 0 0 60px #0066ff40, inset 0 0 20px #001848; }
   .btn-play:active { transform: scale(.95); }
+  .btn-play.loading::after {
+    content:''; position:absolute; inset:-6px; border-radius:50%;
+    border: 2px solid transparent; border-top-color: var(--accent);
+    border-right-color: var(--accent);
+    animation: btnSpin .8s linear infinite;
+  }
+  @keyframes btnSpin { to { transform: rotate(360deg); } }
 
   /* AD RING */
   .ad-ring-wrap { display: none; flex-direction: column; align-items: center; gap: 4px; }
@@ -1154,12 +1161,12 @@ function toggleAdPause() {
 
 // ── Radio play/pause ────────────────────────────────────────────
 function play() {
+  trackSub.textContent = '◌ CONECTANDO...';
+  btnPlay.classList.add('loading');
+  setIcon(true);
   radioEl.src = currentUrl;
   radioEl.play().then(() => {
     isPlaying = true;
-    setIcon(true);
-    setWave(true);
-    trackSub.textContent = '● TRANSMITIENDO EN VIVO';
     stopRing();
     startRing();
     updateMediaSessionMeta();
@@ -1170,6 +1177,8 @@ function play() {
     queue = shuffle(TRACKS); queueIdx = 0;
     adAudioEl.src = queue[0].src;
   }).catch(() => {
+    btnPlay.classList.remove('loading');
+    setIcon(false);
     trackSub.textContent = '⚠ ERROR · SIN SEÑAL';
     if (currentCat !== 'local' && currentCat !== 'custom') markStationDead(currentUrl);
   });
@@ -1178,12 +1187,28 @@ function play() {
 function pause() {
   radioEl.pause();
   isPlaying = false;
+  btnPlay.classList.remove('loading');
   setIcon(false);
   setWave(false);
   trackSub.textContent = '■ STANDBY';
   stopRing();
   setMediaPlaybackState('paused');
 }
+
+// Eventos reales de buffering del navegador (más precisos que la promesa de play())
+radioEl.addEventListener('waiting', () => {
+  if (isPlaying || btnPlay.classList.contains('loading')) {
+    btnPlay.classList.add('loading');
+    trackSub.textContent = '◌ CARGANDO...';
+    setWave(false);
+  }
+});
+radioEl.addEventListener('playing', () => {
+  btnPlay.classList.remove('loading');
+  setIcon(true);
+  setWave(true);
+  trackSub.textContent = '● TRANSMITIENDO EN VIVO';
+});
 
 // ── Temporizador de apagado (sleep timer) ──────────────────────────
 let sleepTimeoutId = null;
