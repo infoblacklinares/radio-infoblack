@@ -225,6 +225,17 @@
   .fav-btn:active { transform: translateY(-50%) scale(1.25); }
   .fav-btn.active { color: #f0c040; }
 
+  /* ── BUSCADOR ── */
+  .search-wrap { padding: 8px 8px 0; }
+  .search-inp {
+    width: 100%; background: #020608; border: 1px solid #0a2030;
+    border-radius: 6px; padding: 9px 12px; color: var(--text);
+    font-family: 'Rajdhani', sans-serif; font-size: 13px;
+    transition: border-color .2s;
+  }
+  .search-inp:focus { border-color: var(--accent); box-shadow: 0 0 6px var(--accent2); }
+  .search-inp::placeholder { color: var(--muted); }
+
   /* ── CATEGORY TABS ── */
   .cat-tabs {
     display: flex; gap: 4px; overflow-x: auto; padding: 8px 8px 4px;
@@ -455,6 +466,9 @@
   <div class="screen-header">
     <span class="screen-title">◈ SELECCIÓN DE EMISORA</span>
     <div class="screen-dots"><span class="screen-dot sd-r"></span><span class="screen-dot sd-y"></span><span class="screen-dot sd-g"></span></div>
+  </div>
+  <div class="search-wrap">
+    <input class="search-inp" type="text" id="searchRadio" placeholder="🔎 Buscar emisora o canción...">
   </div>
   <div class="cat-tabs" id="catTabs">
     <button class="cat-tab active" data-cat="all">TODAS</button>
@@ -901,6 +915,20 @@
   </select>
 </div>
 
+<!-- TEMPORIZADOR DE APAGADO -->
+<div class="ad-setting">
+  <span class="ad-setting-label">😴 DORMIR EN</span>
+  <select id="sleepTimer">
+    <option value="0">Desactivado</option>
+    <option value="15">15 min</option>
+    <option value="30">30 min</option>
+    <option value="45">45 min</option>
+    <option value="60">60 min</option>
+    <option value="90">90 min</option>
+  </select>
+  <span class="ad-setting-label" id="sleepTimerLabel"></span>
+</div>
+
 <!-- Audio radio y audio publicidad son elementos separados -->
 <audio id="radioEl"></audio>
 <audio id="adAudioEl" preload="auto"></audio>
@@ -920,6 +948,8 @@ const adRingWrap  = document.getElementById('adRingWrap');
 const adRingFill  = document.getElementById('adRingFill');
 const adRingNum   = document.getElementById('adRingNum');
 const adInterval  = document.getElementById('adInterval');
+const sleepTimer      = document.getElementById('sleepTimer');
+const sleepTimerLabel = document.getElementById('sleepTimerLabel');
 const radioList   = document.getElementById('radioList');
 const btnCustom   = document.getElementById('btnCustom');
 const customUrl   = document.getElementById('customUrl');
@@ -1134,11 +1164,14 @@ function play() {
     startRing();
     updateMediaSessionMeta();
     setMediaPlaybackState('playing');
+    saveLastStation();
+    markStationAlive(currentUrl);
     // Pre-cargar primer track de publicidad
     queue = shuffle(TRACKS); queueIdx = 0;
     adAudioEl.src = queue[0].src;
   }).catch(() => {
     trackSub.textContent = '⚠ ERROR · SIN SEÑAL';
+    if (currentCat !== 'local' && currentCat !== 'custom') markStationDead(currentUrl);
   });
 }
 
@@ -1151,6 +1184,44 @@ function pause() {
   stopRing();
   setMediaPlaybackState('paused');
 }
+
+// ── Temporizador de apagado (sleep timer) ──────────────────────────
+let sleepTimeoutId = null;
+let sleepTickId = null;
+let sleepEndsAt = null;
+
+function clearSleepTimer() {
+  clearTimeout(sleepTimeoutId);
+  clearInterval(sleepTickId);
+  sleepTimeoutId = null;
+  sleepTickId = null;
+  sleepEndsAt = null;
+  sleepTimerLabel.textContent = '';
+}
+
+function updateSleepLabel() {
+  if (!sleepEndsAt) { sleepTimerLabel.textContent = ''; return; }
+  const remainingMs = sleepEndsAt - Date.now();
+  if (remainingMs <= 0) { sleepTimerLabel.textContent = ''; return; }
+  const mins = Math.floor(remainingMs / 60000);
+  const secs = Math.floor((remainingMs % 60000) / 1000);
+  sleepTimerLabel.textContent = `· apaga en ${mins}:${String(secs).padStart(2,'0')}`;
+}
+
+sleepTimer.addEventListener('change', () => {
+  clearSleepTimer();
+  const mins = parseFloat(sleepTimer.value);
+  if (!mins) return;
+  sleepEndsAt = Date.now() + mins * 60000;
+  updateSleepLabel();
+  sleepTickId = setInterval(updateSleepLabel, 1000);
+  sleepTimeoutId = setTimeout(() => {
+    pause();
+    clearSleepTimer();
+    sleepTimer.value = '0';
+    trackSub.textContent = '😴 Apagado por temporizador';
+  }, mins * 60000);
+});
 
 // ── Media Session API (controles en pantalla de bloqueo / notificación) ──
 function updateMediaSessionMeta() {
@@ -1441,6 +1512,61 @@ function applyDeleted() {
 applyDeleted();
 initRadioButtons();
 
+// ── Detección pasiva de radios caídas ──────────────────────────────
+const DEAD_KEY = 'ib_dead_stations';
+function getDead() { return JSON.parse(localStorage.getItem(DEAD_KEY) || '[]'); }
+function saveDead(list) { localStorage.setItem(DEAD_KEY, JSON.stringify(list)); }
+function markStationDead(url) {
+  const list = getDead();
+  if (!list.includes(url)) { list.push(url); saveDead(list); }
+  const btn = Array.from(radioList.querySelectorAll('.radio-btn')).find(b => b.dataset.url === url);
+  const freq = btn && btn.querySelector('.radio-freq');
+  if (freq && !freq.textContent.startsWith('⚠ Sin señal')) {
+    freq.dataset.orig = freq.dataset.orig || freq.textContent;
+    freq.textContent = '⚠ Sin señal · ' + freq.dataset.orig;
+  }
+}
+function markStationAlive(url) {
+  let list = getDead();
+  if (!list.includes(url)) return;
+  list = list.filter(u => u !== url);
+  saveDead(list);
+  const btn = Array.from(radioList.querySelectorAll('.radio-btn')).find(b => b.dataset.url === url);
+  const freq = btn && btn.querySelector('.radio-freq');
+  if (freq && freq.dataset.orig) freq.textContent = freq.dataset.orig;
+}
+function applyDeadFlags() {
+  const list = getDead();
+  radioList.querySelectorAll('.radio-btn').forEach(btn => {
+    if (list.includes(btn.dataset.url)) markStationDead(btn.dataset.url);
+  });
+}
+applyDeadFlags();
+
+// ── Recordar última emisora/canción ────────────────────────────────
+const LAST_KEY = 'ib_last_station';
+function saveLastStation() {
+  if (currentCat === 'local') return; // los blob URL no sobreviven a un reinicio
+  localStorage.setItem(LAST_KEY, JSON.stringify({ url: currentUrl, name: currentName, cat: currentCat }));
+}
+function restoreLastStation() {
+  const raw = localStorage.getItem(LAST_KEY);
+  if (!raw) return;
+  try {
+    const data = JSON.parse(raw);
+    if (!data.url || !data.name) return;
+    currentUrl  = data.url;
+    currentName = data.name;
+    currentCat  = data.cat || 'chile';
+    trackTitle.textContent = currentName;
+    trackSub.textContent = '■ STANDBY · PRESIONA PLAY';
+    radioList.querySelectorAll('.radio-btn').forEach(b => b.classList.remove('active'));
+    const match = Array.from(radioList.querySelectorAll('.radio-btn')).find(b => b.dataset.url === data.url);
+    if (match) match.classList.add('active');
+  } catch (e) {}
+}
+restoreLastStation();
+
 // ── Favoritos ────────────────────────────────────────────────────
 const FAV_KEY = 'ib_fav_radios';
 function getFavs() { return JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); }
@@ -1470,31 +1596,44 @@ function initFavButtons() {
       saveFavs(list);
       // Si estamos viendo la pestaña de favoritas, refrescar la vista
       const activeTab = document.querySelector('.cat-tab.active');
-      if (activeTab && activeTab.dataset.cat === 'fav') {
-        btn.style.display = list.includes(url) ? '' : 'none';
-      }
+      if (activeTab && activeTab.dataset.cat === 'fav') refreshRadioList();
     });
     btn.appendChild(fav);
   });
 }
 initFavButtons();
 
-// ── Filtro por categoría ─────────────────────────────────────────
+// ── Filtro por categoría + búsqueda ───────────────────────────────
+const searchRadio = document.getElementById('searchRadio');
+function normalizeText(s) {
+  return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+
+function refreshRadioList() {
+  const query = normalizeText(searchRadio.value.trim());
+  const activeTab = document.querySelector('.cat-tab.active');
+  const cat = activeTab ? activeTab.dataset.cat : 'all';
+  const favs = getFavs();
+  radioList.querySelectorAll('.radio-btn').forEach(btn => {
+    const name = normalizeText(btn.dataset.name || '');
+    const matchesQuery = !query || name.includes(query);
+    let matchesCat;
+    if (cat === 'all') matchesCat = btn.dataset.cat !== 'local'; // música local no se mezcla en "TODAS"
+    else if (cat === 'fav') matchesCat = favs.includes(btn.dataset.url);
+    else matchesCat = btn.dataset.cat === cat;
+    btn.style.display = (matchesQuery && matchesCat) ? '' : 'none';
+  });
+}
+
 document.querySelectorAll('.cat-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
-    const cat = tab.dataset.cat;
-    const favs = getFavs();
-    radioList.querySelectorAll('.radio-btn').forEach(btn => {
-      let show;
-      if (cat === 'all') show = btn.dataset.cat !== 'local'; // música local no se mezcla en "TODAS"
-      else if (cat === 'fav') show = favs.includes(btn.dataset.url);
-      else show = btn.dataset.cat === cat;
-      btn.style.display = show ? '' : 'none';
-    });
+    refreshRadioList();
   });
 });
+
+searchRadio.addEventListener('input', refreshRadioList);
 
 // ── Status Bar ───────────────────────────────────────────────────
 const statVol  = document.getElementById('statVol');
