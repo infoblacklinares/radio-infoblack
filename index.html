@@ -262,6 +262,8 @@
     box-shadow: 0 0 8px #0044cc40;
   }
   .btn-sm:hover { background: linear-gradient(180deg, #0066ff, #0044cc); box-shadow: 0 0 14px #0066ff60; }
+  .btn-sm.active { background: linear-gradient(180deg, #f0c040, #b88a00); color: #1a1200; border-color: #f0c040; text-shadow: none; box-shadow: 0 0 8px #f0c04060; }
+  .btn-sm.active:hover { background: linear-gradient(180deg, #ffd24d, #cc9900); }
 
   /* ── CONTROL STRIP (under screen) ── */
   .ctrl-strip {
@@ -811,6 +813,7 @@
       <input type="file" id="localFilesInput" multiple accept="audio/*" style="display:none">
       <button class="btn-sm" id="btnLocalFolder">ELEGIR CARPETA</button>
       <button class="btn-sm" id="btnLocalFiles">ELEGIR ARCHIVOS</button>
+      <button class="btn-sm" id="btnShuffleLocal" title="Reproducir Mi Música en orden aleatorio">🔀 ALEATORIO</button>
     </div>
   </div>
 
@@ -922,6 +925,7 @@ const btnCustom   = document.getElementById('btnCustom');
 const customUrl   = document.getElementById('customUrl');
 const btnLocalFolder  = document.getElementById('btnLocalFolder');
 const btnLocalFiles   = document.getElementById('btnLocalFiles');
+const btnShuffleLocal = document.getElementById('btnShuffleLocal');
 const localFolderInput = document.getElementById('localFolderInput');
 const localFilesInput  = document.getElementById('localFilesInput');
 const adWaveEl    = document.getElementById('adWave');
@@ -936,6 +940,7 @@ let ringTotal    = 0;
 
 let currentUrl   = 'https://mdstrm.com/audio/637f68ddce4b1208597d8a86/icecast.audio';
 let currentName  = 'Radio Carolina';
+let currentCat   = 'chile';
 
 // Audios de publicidad (aleatorio sin repetir)
 // audio-1,2,3 = InfoBlack | audio-4,5,6 = Florería Angélica | audio-7,8,9 = LinaresYa
@@ -1183,6 +1188,7 @@ function initRadioButtons() {
       btn.classList.add('active');
       currentUrl  = btn.dataset.url;
       currentName = btn.dataset.name;
+      currentCat  = btn.dataset.cat;
       trackTitle.textContent = currentName;
       pause();
       setTimeout(play, 300);
@@ -1238,6 +1244,41 @@ btnLocalFiles.addEventListener('click', () => localFilesInput.click());
 localFolderInput.addEventListener('change', e => addLocalTracks(e.target.files));
 localFilesInput.addEventListener('change', e => addLocalTracks(e.target.files));
 
+// ── Reproducción aleatoria de Mi Música ────────────────────────────
+const SHUFFLE_KEY = 'ib_shuffle_local';
+let shuffleLocal = localStorage.getItem(SHUFFLE_KEY) === '1';
+function updateShuffleBtn() { btnShuffleLocal.classList.toggle('active', shuffleLocal); }
+updateShuffleBtn();
+
+btnShuffleLocal.addEventListener('click', () => {
+  shuffleLocal = !shuffleLocal;
+  localStorage.setItem(SHUFFLE_KEY, shuffleLocal ? '1' : '0');
+  updateShuffleBtn();
+  showLocalMusicMsg(shuffleLocal ? '🔀 Orden aleatorio activado' : '➡ Orden secuencial activado');
+});
+
+function playNextLocalTrack() {
+  const tracks = Array.from(radioList.querySelectorAll('.radio-btn[data-cat="local"]'));
+  if (tracks.length === 0) return;
+  let nextBtn;
+  if (tracks.length === 1) {
+    nextBtn = tracks[0];
+  } else if (shuffleLocal) {
+    let idx;
+    do { idx = Math.floor(Math.random() * tracks.length); } while (tracks[idx].dataset.url === currentUrl);
+    nextBtn = tracks[idx];
+  } else {
+    const curIdx = tracks.findIndex(t => t.dataset.url === currentUrl);
+    nextBtn = tracks[(curIdx + 1) % tracks.length];
+  }
+  nextBtn.click();
+}
+
+// Al terminar una canción local, avanzar automáticamente a la siguiente
+radioEl.addEventListener('ended', () => {
+  if (currentCat === 'local' && !adActive) playNextLocalTrack();
+});
+
 // URL personalizada
 btnCustom.addEventListener('click', () => {
   const url = customUrl.value.trim();
@@ -1254,6 +1295,7 @@ btnCustom.addEventListener('click', () => {
   initFavButtons();
   currentUrl  = url;
   currentName = 'Stream personalizado';
+  currentCat  = 'custom';
   trackTitle.textContent = currentName;
   trackSub.textContent   = 'Presiona play para comenzar';
   customUrl.value = '';
