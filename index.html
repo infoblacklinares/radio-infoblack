@@ -1132,6 +1132,8 @@ function play() {
     trackSub.textContent = '● TRANSMITIENDO EN VIVO';
     stopRing();
     startRing();
+    updateMediaSessionMeta();
+    setMediaPlaybackState('playing');
     // Pre-cargar primer track de publicidad
     queue = shuffle(TRACKS); queueIdx = 0;
     adAudioEl.src = queue[0].src;
@@ -1147,7 +1149,37 @@ function pause() {
   setWave(false);
   trackSub.textContent = '■ STANDBY';
   stopRing();
+  setMediaPlaybackState('paused');
 }
+
+// ── Media Session API (controles en pantalla de bloqueo / notificación) ──
+function updateMediaSessionMeta() {
+  if (!('mediaSession' in navigator)) return;
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title: currentName,
+    artist: 'InfoBlack Radio · Linares',
+    album: currentCat === 'local' ? 'Mi Música' : 'En vivo',
+    artwork: [
+      { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { src: '/icon-512.png', sizes: '512x512', type: 'image/png' }
+    ]
+  });
+}
+function setMediaPlaybackState(state) {
+  if ('mediaSession' in navigator) navigator.mediaSession.playbackState = state;
+}
+function setupMediaSessionHandlers() {
+  if (!('mediaSession' in navigator)) return;
+  navigator.mediaSession.setActionHandler('play', () => { if (!adActive) play(); });
+  navigator.mediaSession.setActionHandler('pause', () => { if (!adActive) pause(); });
+  navigator.mediaSession.setActionHandler('previoustrack', () => {
+    if (currentCat === 'local') playPrevLocalTrack();
+  });
+  navigator.mediaSession.setActionHandler('nexttrack', () => {
+    if (currentCat === 'local') playNextLocalTrack();
+  });
+}
+setupMediaSessionHandlers();
 
 btnPlay.addEventListener('click', () => {
   if (adActive) return;
@@ -1272,6 +1304,23 @@ function playNextLocalTrack() {
     nextBtn = tracks[(curIdx + 1) % tracks.length];
   }
   nextBtn.click();
+}
+
+function playPrevLocalTrack() {
+  const tracks = Array.from(radioList.querySelectorAll('.radio-btn[data-cat="local"]'));
+  if (tracks.length === 0) return;
+  let prevBtn;
+  if (tracks.length === 1) {
+    prevBtn = tracks[0];
+  } else if (shuffleLocal) {
+    let idx;
+    do { idx = Math.floor(Math.random() * tracks.length); } while (tracks[idx].dataset.url === currentUrl);
+    prevBtn = tracks[idx];
+  } else {
+    const curIdx = tracks.findIndex(t => t.dataset.url === currentUrl);
+    prevBtn = tracks[(curIdx - 1 + tracks.length) % tracks.length];
+  }
+  prevBtn.click();
 }
 
 // Al terminar una canción local, avanzar automáticamente a la siguiente
