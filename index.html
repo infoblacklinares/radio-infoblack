@@ -457,6 +457,7 @@
   <div class="cat-tabs" id="catTabs">
     <button class="cat-tab active" data-cat="all">TODAS</button>
     <button class="cat-tab fav-tab" data-cat="fav">⭐ FAVORITAS</button>
+    <button class="cat-tab" data-cat="local">🎵 MI MÚSICA</button>
     <button class="cat-tab" data-cat="chile">🇨🇱 CHILE</button>
     <button class="cat-tab" data-cat="reggaeton">🔥 REGGAETÓN</button>
     <button class="cat-tab" data-cat="cumbia">🪗 CUMBIA</button>
@@ -804,6 +805,16 @@
   </div>
 
   <div class="custom-url-wrap">
+    <span class="inp-label" id="localMusicLabel">📁 Agrega música de tu computador (MP3, OGG, WAV...)</span>
+    <div class="inp-row">
+      <input type="file" id="localFolderInput" webkitdirectory multiple accept="audio/*" style="display:none">
+      <input type="file" id="localFilesInput" multiple accept="audio/*" style="display:none">
+      <button class="btn-sm" id="btnLocalFolder">ELEGIR CARPETA</button>
+      <button class="btn-sm" id="btnLocalFiles">ELEGIR ARCHIVOS</button>
+    </div>
+  </div>
+
+  <div class="custom-url-wrap">
     <span class="inp-label">O pega una URL de stream personalizada</span>
     <div class="inp-row">
       <input class="inp" type="url" id="customUrl" placeholder="https://stream.radio.cl/live.mp3">
@@ -909,6 +920,10 @@ const adInterval  = document.getElementById('adInterval');
 const radioList   = document.getElementById('radioList');
 const btnCustom   = document.getElementById('btnCustom');
 const customUrl   = document.getElementById('customUrl');
+const btnLocalFolder  = document.getElementById('btnLocalFolder');
+const btnLocalFiles   = document.getElementById('btnLocalFiles');
+const localFolderInput = document.getElementById('localFolderInput');
+const localFilesInput  = document.getElementById('localFilesInput');
 const adWaveEl    = document.getElementById('adWave');
 
 let isPlaying    = false;
@@ -1174,6 +1189,56 @@ function initRadioButtons() {
     });
   });
 }
+
+// ── Música local (archivos/carpeta del computador) ────────────────
+const AUDIO_EXTENSIONS = ['mp3','ogg','wav','m4a','flac','aac','opus','weba'];
+function isAudioFile(file) {
+  if (file.type && file.type.startsWith('audio/')) return true;
+  const ext = file.name.split('.').pop().toLowerCase();
+  return AUDIO_EXTENSIONS.includes(ext);
+}
+
+const localMusicLabel = document.getElementById('localMusicLabel');
+let localMusicLabelTimer = null;
+function showLocalMusicMsg(msg) {
+  localMusicLabel.textContent = msg;
+  clearTimeout(localMusicLabelTimer);
+  localMusicLabelTimer = setTimeout(() => {
+    localMusicLabel.textContent = '📁 Agrega música de tu computador (MP3, OGG, WAV...)';
+  }, 4000);
+}
+
+function addLocalTracks(fileList) {
+  const files = Array.from(fileList).filter(isAudioFile);
+  if (files.length === 0) {
+    showLocalMusicMsg('⚠ No se encontraron archivos de audio en la selección.');
+    return;
+  }
+  files.forEach(file => {
+    const url = URL.createObjectURL(file);
+    const name = file.name.replace(/\.[^/.]+$/, '');
+    const btn = document.createElement('button');
+    btn.className = 'radio-btn';
+    btn.dataset.cat = 'local';
+    btn.dataset.url = url;
+    btn.dataset.name = name;
+    btn.innerHTML = `<span class="radio-icon">🎵</span><div class="radio-info"><div class="radio-name">${name}</div><div class="radio-freq">Música local</div></div><span class="radio-check">✓</span>`;
+    radioList.appendChild(btn);
+  });
+  initRadioButtons();
+  initFavButtons();
+  // Si estamos viendo "Mi Música", refrescar el filtro para que aparezcan
+  const activeTab = document.querySelector('.cat-tab.active');
+  if (activeTab && activeTab.dataset.cat === 'local') {
+    document.querySelector('.cat-tab[data-cat="local"]').click();
+  }
+  showLocalMusicMsg(`✓ Se agregaron ${files.length} canción(es). Nota: si recargas la página, deberás volver a seleccionarlas.`);
+}
+
+btnLocalFolder.addEventListener('click', () => localFolderInput.click());
+btnLocalFiles.addEventListener('click', () => localFilesInput.click());
+localFolderInput.addEventListener('change', e => addLocalTracks(e.target.files));
+localFilesInput.addEventListener('change', e => addLocalTracks(e.target.files));
 
 // URL personalizada
 btnCustom.addEventListener('click', () => {
