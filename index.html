@@ -337,6 +337,34 @@
   .waveform-bar.active { opacity: 1; animation: wave .8s ease-in-out infinite; box-shadow: 0 0 4px var(--accent); }
   @keyframes wave { 0%,100%{transform:scaleY(.2)} 50%{transform:scaleY(1)} }
 
+  /* ── SEEK BAR (avance/retroceso en Mi Música) ── */
+  .seek-wrap { display: none; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .seek-wrap.visible { display: flex; }
+  .seek-row { display: flex; align-items: center; gap: 8px; }
+  .seek-time {
+    font-family: 'Share Tech Mono', monospace; font-size: 10px;
+    color: var(--muted); min-width: 32px; text-align: center;
+  }
+  .seek-bar {
+    flex: 1; height: 4px; border-radius: 2px; appearance: none;
+    background: var(--border2); cursor: pointer; outline: none;
+  }
+  .seek-bar::-webkit-slider-thumb {
+    appearance: none; width: 13px; height: 13px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 6px var(--accent2); cursor: pointer;
+  }
+  .seek-bar::-moz-range-thumb {
+    width: 13px; height: 13px; border-radius: 50%; border: none;
+    background: var(--accent); box-shadow: 0 0 6px var(--accent2); cursor: pointer;
+  }
+  .seek-jump-row { display: flex; justify-content: center; gap: 10px; }
+  .btn-jump {
+    background: transparent; border: 1px solid var(--border2); color: var(--muted);
+    font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 1px;
+    padding: 4px 10px; border-radius: 4px; cursor: pointer; transition: all .15s;
+  }
+  .btn-jump:hover { border-color: var(--accent2); color: var(--accent); }
+
   /* Controls row */
   .controls { display: flex; align-items: center; justify-content: center; gap: 20px; }
 
@@ -866,6 +894,18 @@
 
   <div class="waveform" id="waveform"></div>
 
+  <div class="seek-wrap" id="seekWrap">
+    <div class="seek-row">
+      <span class="seek-time" id="seekCurrent">0:00</span>
+      <input type="range" id="seekBar" class="seek-bar" min="0" max="100" value="0" step="1">
+      <span class="seek-time" id="seekDuration">0:00</span>
+    </div>
+    <div class="seek-jump-row">
+      <button class="btn-jump" id="btnRewind">⏪ 10s</button>
+      <button class="btn-jump" id="btnForward">10s ⏩</button>
+    </div>
+  </div>
+
   <div class="controls">
     <div class="ad-ring-wrap" id="adRingWrap">
       <div class="ad-ring">
@@ -969,6 +1009,12 @@ const adAudioEl   = document.getElementById('adAudioEl');
 const btnPlay     = document.getElementById('btnPlay');
 const btnPrev     = document.getElementById('btnPrev');
 const btnNext     = document.getElementById('btnNext');
+const seekWrap    = document.getElementById('seekWrap');
+const seekBar     = document.getElementById('seekBar');
+const seekCurrent = document.getElementById('seekCurrent');
+const seekDuration = document.getElementById('seekDuration');
+const btnRewind   = document.getElementById('btnRewind');
+const btnForward  = document.getElementById('btnForward');
 const iconPlay    = document.getElementById('iconPlay');
 const trackTitle  = document.getElementById('trackTitle');
 const trackSub    = document.getElementById('trackSub');
@@ -1235,6 +1281,42 @@ radioEl.addEventListener('playing', () => {
   trackSub.textContent = '● TRANSMITIENDO EN VIVO';
 });
 
+// ── Barra de progreso (avance/retroceso en Mi Música) ──────────────
+function formatTime(s) {
+  if (!isFinite(s) || s < 0) return '0:00';
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${m}:${String(sec).padStart(2, '0')}`;
+}
+let seekDragging = false;
+function updateSeekUI() {
+  const hasDuration = isFinite(radioEl.duration) && radioEl.duration > 0;
+  const showSeek = currentCat === 'local' && hasDuration;
+  seekWrap.classList.toggle('visible', showSeek);
+  if (!showSeek || seekDragging) return;
+  seekBar.max = Math.floor(radioEl.duration);
+  seekBar.value = Math.floor(radioEl.currentTime);
+  seekCurrent.textContent = formatTime(radioEl.currentTime);
+  seekDuration.textContent = formatTime(radioEl.duration);
+}
+radioEl.addEventListener('timeupdate', updateSeekUI);
+radioEl.addEventListener('loadedmetadata', updateSeekUI);
+
+seekBar.addEventListener('input', () => {
+  seekDragging = true;
+  seekCurrent.textContent = formatTime(parseFloat(seekBar.value));
+});
+seekBar.addEventListener('change', () => {
+  radioEl.currentTime = parseFloat(seekBar.value);
+  seekDragging = false;
+});
+btnRewind.addEventListener('click', () => {
+  radioEl.currentTime = Math.max(0, radioEl.currentTime - 10);
+});
+btnForward.addEventListener('click', () => {
+  radioEl.currentTime = Math.min(radioEl.duration || Infinity, radioEl.currentTime + 10);
+});
+
 // ── Temporizador de apagado (sleep timer) ──────────────────────────
 let sleepTimeoutId = null;
 let sleepTickId = null;
@@ -1339,6 +1421,7 @@ function initRadioButtons() {
       currentName = btn.dataset.name;
       currentCat  = btn.dataset.cat;
       trackTitle.textContent = currentName;
+      seekWrap.classList.toggle('visible', currentCat === 'local');
       pause();
       setTimeout(play, 300);
     });
