@@ -1227,11 +1227,9 @@ function addLocalTracks(fileList) {
   });
   initRadioButtons();
   initFavButtons();
-  // Si estamos viendo "Mi Música", refrescar el filtro para que aparezcan
-  const activeTab = document.querySelector('.cat-tab.active');
-  if (activeTab && activeTab.dataset.cat === 'local') {
-    document.querySelector('.cat-tab[data-cat="local"]').click();
-  }
+  // Cambiar a la pestaña "Mi Música" para mostrar las canciones recién agregadas
+  // sin que se mezclen con el resto de las emisoras en "TODAS"
+  document.querySelector('.cat-tab[data-cat="local"]').click();
   showLocalMusicMsg(`✓ Se agregaron ${files.length} canción(es). Nota: si recargas la página, deberás volver a seleccionarlas.`);
 }
 
@@ -1399,7 +1397,7 @@ document.querySelectorAll('.cat-tab').forEach(tab => {
     const favs = getFavs();
     radioList.querySelectorAll('.radio-btn').forEach(btn => {
       let show;
-      if (cat === 'all') show = true;
+      if (cat === 'all') show = btn.dataset.cat !== 'local'; // música local no se mezcla en "TODAS"
       else if (cat === 'fav') show = favs.includes(btn.dataset.url);
       else show = btn.dataset.cat === cat;
       btn.style.display = show ? '' : 'none';
