@@ -340,6 +340,17 @@
   /* Controls row */
   .controls { display: flex; align-items: center; justify-content: center; gap: 20px; }
 
+  /* PREV/NEXT buttons */
+  .btn-skip {
+    width: 46px; height: 46px; border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, #0a1f38, #020a14);
+    color: var(--muted); border: 1px solid var(--border2); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .15s, color .15s, border-color .15s;
+  }
+  .btn-skip:hover { color: var(--accent); border-color: var(--accent2); transform: scale(1.08); }
+  .btn-skip:active { transform: scale(.92); }
+
   /* PLAY button — big dial style */
   .btn-play {
     width: 70px; height: 70px; border-radius: 50%;
@@ -867,9 +878,21 @@
       <span class="ad-ring-label">▸ PUBLI</span>
     </div>
 
+    <button class="btn-skip" id="btnPrev" title="Anterior">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/>
+      </svg>
+    </button>
+
     <button class="btn-play" id="btnPlay">
       <svg id="iconPlay" width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
         <path d="M8 5v14l11-7z"/>
+      </svg>
+    </button>
+
+    <button class="btn-skip" id="btnNext" title="Siguiente">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M16 6h2v12h-2zm-2 6L5.5 6v12z"/>
       </svg>
     </button>
   </div>
@@ -944,6 +967,8 @@
 const radioEl     = document.getElementById('radioEl');
 const adAudioEl   = document.getElementById('adAudioEl');
 const btnPlay     = document.getElementById('btnPlay');
+const btnPrev     = document.getElementById('btnPrev');
+const btnNext     = document.getElementById('btnNext');
 const iconPlay    = document.getElementById('iconPlay');
 const trackTitle  = document.getElementById('trackTitle');
 const trackSub    = document.getElementById('trackSub');
@@ -1268,12 +1293,8 @@ function setupMediaSessionHandlers() {
   if (!('mediaSession' in navigator)) return;
   navigator.mediaSession.setActionHandler('play', () => { if (!adActive) play(); });
   navigator.mediaSession.setActionHandler('pause', () => { if (!adActive) pause(); });
-  navigator.mediaSession.setActionHandler('previoustrack', () => {
-    if (currentCat === 'local') playPrevLocalTrack();
-  });
-  navigator.mediaSession.setActionHandler('nexttrack', () => {
-    if (currentCat === 'local') playNextLocalTrack();
-  });
+  navigator.mediaSession.setActionHandler('previoustrack', () => { if (!adActive) playPrevStation(); });
+  navigator.mediaSession.setActionHandler('nexttrack', () => { if (!adActive) playNextStation(); });
 }
 setupMediaSessionHandlers();
 
@@ -1418,6 +1439,27 @@ function playPrevLocalTrack() {
   }
   prevBtn.click();
 }
+
+// ── Botones ⏮ ⏭ del reproductor (radio en vivo o Mi Música) ────────
+function getVisibleStations() {
+  return Array.from(radioList.querySelectorAll('.radio-btn')).filter(b => b.style.display !== 'none');
+}
+function playNextStation() {
+  if (currentCat === 'local') { playNextLocalTrack(); return; }
+  const visible = getVisibleStations();
+  if (visible.length === 0) return;
+  const curIdx = visible.findIndex(b => b.dataset.url === currentUrl);
+  visible[(curIdx + 1 + visible.length) % visible.length].click();
+}
+function playPrevStation() {
+  if (currentCat === 'local') { playPrevLocalTrack(); return; }
+  const visible = getVisibleStations();
+  if (visible.length === 0) return;
+  const curIdx = visible.findIndex(b => b.dataset.url === currentUrl);
+  visible[(curIdx - 1 + visible.length) % visible.length].click();
+}
+btnNext.addEventListener('click', () => { if (!adActive) playNextStation(); });
+btnPrev.addEventListener('click', () => { if (!adActive) playPrevStation(); });
 
 // Al terminar una canción local, avanzar automáticamente a la siguiente
 radioEl.addEventListener('ended', () => {
