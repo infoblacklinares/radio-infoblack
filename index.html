@@ -214,6 +214,16 @@
   }
   .radio-btn:hover .radio-del { opacity: 1; }
   .radio-del:hover { color: #ff3040 !important; }
+  .fav-btn {
+    position: absolute; top: 50%; right: 38px;
+    transform: translateY(-50%);
+    background: transparent; border: none;
+    font-size: 19px; cursor: pointer; color: #2a3a50;
+    line-height: 1; padding: 4px; z-index: 2;
+    transition: color .15s, transform .15s;
+  }
+  .fav-btn:active { transform: translateY(-50%) scale(1.25); }
+  .fav-btn.active { color: #f0c040; }
 
   /* ── CATEGORY TABS ── */
   .cat-tabs {
@@ -229,6 +239,8 @@
   }
   .cat-tab:hover { border-color: var(--accent2); color: var(--accent); }
   .cat-tab.active { background: var(--accent2); border-color: var(--accent2); color: #fff; box-shadow: 0 0 8px #0066ff60; }
+  .cat-tab.fav-tab { color: #f0c040; border-color: #3a2a00; }
+  .cat-tab.fav-tab.active { background: #4a3300; border-color: #f0c040; color: #f0c040; box-shadow: 0 0 8px #f0c04060; }
 
   .custom-url-wrap { display: flex; flex-direction: column; gap: 6px; padding: 0 8px 10px; }
   .inp-label { font-size: 9px; color: var(--muted); font-family: 'Share Tech Mono', monospace; letter-spacing: 1px; }
@@ -444,6 +456,7 @@
   </div>
   <div class="cat-tabs" id="catTabs">
     <button class="cat-tab active" data-cat="all">TODAS</button>
+    <button class="cat-tab fav-tab" data-cat="fav">⭐ FAVORITAS</button>
     <button class="cat-tab" data-cat="chile">🇨🇱 CHILE</button>
     <button class="cat-tab" data-cat="reggaeton">🔥 REGGAETÓN</button>
     <button class="cat-tab" data-cat="cumbia">🪗 CUMBIA</button>
@@ -1175,6 +1188,7 @@ btnCustom.addEventListener('click', () => {
   newBtn.innerHTML = `<span class="radio-icon">📡</span><div class="radio-info"><div class="radio-name">Stream personalizado</div><div class="radio-freq">${url.substring(0,40)}...</div></div><span class="radio-check">✓</span>`;
   radioList.appendChild(newBtn);
   initRadioButtons();
+  initFavButtons();
   currentUrl  = url;
   currentName = 'Stream personalizado';
   trackTitle.textContent = currentName;
@@ -1273,18 +1287,57 @@ function applyDeleted() {
 applyDeleted();
 initRadioButtons();
 
+// ── Favoritos ────────────────────────────────────────────────────
+const FAV_KEY = 'ib_fav_radios';
+function getFavs() { return JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); }
+function saveFavs(list) { localStorage.setItem(FAV_KEY, JSON.stringify(list)); }
+function isFav(url) { return getFavs().includes(url); }
+
+function initFavButtons() {
+  radioList.querySelectorAll('.radio-btn').forEach(btn => {
+    if (btn.querySelector('.fav-btn')) return; // ya tiene botón
+    const fav = document.createElement('button');
+    fav.className = 'fav-btn' + (isFav(btn.dataset.url) ? ' active' : '');
+    fav.title = 'Agregar a favoritas';
+    fav.innerHTML = isFav(btn.dataset.url) ? '★' : '☆';
+    fav.addEventListener('click', e => {
+      e.stopPropagation();
+      let list = getFavs();
+      const url = btn.dataset.url;
+      if (list.includes(url)) {
+        list = list.filter(u => u !== url);
+        fav.classList.remove('active');
+        fav.innerHTML = '☆';
+      } else {
+        list.push(url);
+        fav.classList.add('active');
+        fav.innerHTML = '★';
+      }
+      saveFavs(list);
+      // Si estamos viendo la pestaña de favoritas, refrescar la vista
+      const activeTab = document.querySelector('.cat-tab.active');
+      if (activeTab && activeTab.dataset.cat === 'fav') {
+        btn.style.display = list.includes(url) ? '' : 'none';
+      }
+    });
+    btn.appendChild(fav);
+  });
+}
+initFavButtons();
+
 // ── Filtro por categoría ─────────────────────────────────────────
 document.querySelectorAll('.cat-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     const cat = tab.dataset.cat;
+    const favs = getFavs();
     radioList.querySelectorAll('.radio-btn').forEach(btn => {
-      if (cat === 'all' || btn.dataset.cat === cat) {
-        btn.style.display = '';
-      } else {
-        btn.style.display = 'none';
-      }
+      let show;
+      if (cat === 'all') show = true;
+      else if (cat === 'fav') show = favs.includes(btn.dataset.url);
+      else show = btn.dataset.cat === cat;
+      btn.style.display = show ? '' : 'none';
     });
   });
 });
