@@ -158,34 +158,34 @@
     padding: 0;
     background: #111827;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer; transition: background .15s;
     text-align: left; width: 100%; position: relative;
-    min-height: 72px;
+    min-height: 84px;
     overflow: hidden;
   }
   .radio-btn:hover { background: #1c2a3a; }
   .radio-btn.active {
     background: #0d1f33;
-    box-shadow: inset 3px 0 0 var(--accent);
+    box-shadow: inset 4px 0 0 var(--accent);
   }
   .radio-icon {
     flex-shrink: 0;
-    width: 72px; height: 72px;
+    width: 84px; height: 84px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 30px;
+    font-size: 36px;
     background: #0a1628;
-    border-radius: 8px 0 0 8px;
+    border-radius: 10px 0 0 10px;
   }
   .radio-btn.active .radio-icon {
     background: linear-gradient(135deg, #001f40, #003366);
   }
   .radio-info {
     flex: 1; min-width: 0;
-    padding: 12px 14px;
+    padding: 14px 16px;
   }
   .radio-name {
-    font-size: 15px; font-weight: 700; color: #e8f4ff;
+    font-size: 17px; font-weight: 700; color: #e8f4ff;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     font-family: 'Rajdhani', sans-serif; letter-spacing: .3px;
     line-height: 1.2;
@@ -193,33 +193,33 @@
   .radio-btn.active .radio-name { color: var(--accent); }
   .radio-freq {
     font-family: 'Share Tech Mono', monospace;
-    font-size: 11px; color: #4a7090;
+    font-size: 12px; color: #4a7090;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    margin-top: 3px;
+    margin-top: 4px;
   }
   .radio-btn.active .radio-freq { color: #0099cc; }
   .radio-check { display: none; }
   .radio-btn.active::after {
     content: '▶';
     position: absolute; right: 14px;
-    font-size: 12px; color: var(--accent);
+    font-size: 13px; color: var(--accent);
     opacity: .8;
   }
   .radio-del {
-    position: absolute; top: 6px; right: 8px;
+    position: absolute; top: 8px; right: 8px;
     background: transparent; border: none; color: #1a3040;
-    font-size: 13px; cursor: pointer; padding: 2px 5px;
+    font-size: 15px; cursor: pointer; padding: 4px 6px;
     border-radius: 4px; opacity: 0; transition: opacity .2s, color .2s; line-height: 1;
     z-index: 2;
   }
   .radio-btn:hover .radio-del { opacity: 1; }
   .radio-del:hover { color: #ff3040 !important; }
   .fav-btn {
-    position: absolute; top: 50%; right: 38px;
+    position: absolute; top: 50%; right: 40px;
     transform: translateY(-50%);
     background: transparent; border: none;
-    font-size: 19px; cursor: pointer; color: #2a3a50;
-    line-height: 1; padding: 4px; z-index: 2;
+    font-size: 22px; cursor: pointer; color: #2a3a50;
+    line-height: 1; padding: 6px; z-index: 2;
     transition: color .15s, transform .15s;
   }
   .fav-btn:active { transform: translateY(-50%) scale(1.25); }
@@ -229,8 +229,8 @@
   .search-wrap { padding: 8px 8px 0; }
   .search-inp {
     width: 100%; background: #020608; border: 1px solid #0a2030;
-    border-radius: 6px; padding: 9px 12px; color: var(--text);
-    font-family: 'Rajdhani', sans-serif; font-size: 13px;
+    border-radius: 6px; padding: 12px 14px; color: var(--text);
+    font-family: 'Rajdhani', sans-serif; font-size: 16px;
     transition: border-color .2s;
   }
   .search-inp:focus { border-color: var(--accent); box-shadow: 0 0 6px var(--accent2); }
@@ -341,13 +341,13 @@
   .now-playing-label::after { content:''; flex:1; height:1px; background:var(--border2); }
 
   .track-title {
-    font-family: 'Orbitron', sans-serif; font-size: 18px; font-weight: 700;
+    font-family: 'Orbitron', sans-serif; font-size: 20px; font-weight: 700;
     letter-spacing: 1px; color: var(--accent);
     text-shadow: 0 0 10px var(--accent2);
-    line-height: 1.1; margin-bottom: 4px;
+    line-height: 1.1; margin-bottom: 6px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .track-sub { font-size: 11px; color: var(--muted); margin-bottom: 14px; font-family:'Share Tech Mono',monospace; letter-spacing:1px; }
+  .track-sub { font-size: 12px; color: var(--muted); margin-bottom: 14px; font-family:'Share Tech Mono',monospace; letter-spacing:1px; }
 
   .waveform { display: flex; align-items: center; gap: 2px; height: 28px; margin-bottom: 16px; }
   .waveform-bar { width: 3px; background: var(--accent2); border-radius: 1px; opacity: .15; }
@@ -359,35 +359,48 @@
   .seek-wrap.visible { display: flex; }
   .seek-row { display: flex; align-items: center; gap: 8px; }
   .seek-time {
-    font-family: 'Share Tech Mono', monospace; font-size: 10px;
-    color: var(--muted); min-width: 32px; text-align: center;
+    font-family: 'Share Tech Mono', monospace; font-size: 12px;
+    color: var(--muted); min-width: 36px; text-align: center;
   }
   .seek-bar {
-    flex: 1; height: 4px; border-radius: 2px; appearance: none;
+    flex: 1; height: 5px; border-radius: 3px; appearance: none;
     background: var(--border2); cursor: pointer; outline: none;
   }
   .seek-bar::-webkit-slider-thumb {
-    appearance: none; width: 13px; height: 13px; border-radius: 50%;
+    appearance: none; width: 16px; height: 16px; border-radius: 50%;
     background: var(--accent); box-shadow: 0 0 6px var(--accent2); cursor: pointer;
   }
   .seek-bar::-moz-range-thumb {
-    width: 13px; height: 13px; border-radius: 50%; border: none;
+    width: 16px; height: 16px; border-radius: 50%; border: none;
     background: var(--accent); box-shadow: 0 0 6px var(--accent2); cursor: pointer;
   }
-  .seek-jump-row { display: flex; justify-content: center; gap: 10px; }
+  .seek-jump-row { display: flex; justify-content: center; gap: 12px; }
   .btn-jump {
     background: transparent; border: 1px solid var(--border2); color: var(--muted);
-    font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 1px;
-    padding: 4px 10px; border-radius: 4px; cursor: pointer; transition: all .15s;
+    font-family: 'Share Tech Mono', monospace; font-size: 12px; letter-spacing: 1px;
+    padding: 7px 14px; border-radius: 4px; cursor: pointer; transition: all .15s;
   }
   .btn-jump:hover { border-color: var(--accent2); color: var(--accent); }
 
+  /* ── BOTÓN COMPARTIR ── */
+  .btn-share {
+    display: flex; align-items: center; gap: 6px;
+    background: transparent; border: 1px solid var(--border2);
+    color: var(--muted); border-radius: 6px;
+    padding: 7px 12px; cursor: pointer;
+    font-family: 'Share Tech Mono', monospace; font-size: 10px;
+    letter-spacing: 1px; transition: all .2s; white-space: nowrap;
+  }
+  .btn-share:hover { border-color: var(--accent2); color: var(--accent); box-shadow: 0 0 8px #0066ff40; }
+  .btn-share:active { transform: scale(.96); }
+  .btn-share svg { flex-shrink: 0; }
+
   /* Controls row */
-  .controls { display: flex; align-items: center; justify-content: center; gap: 20px; }
+  .controls { display: flex; align-items: center; justify-content: center; gap: 24px; }
 
   /* PREV/NEXT buttons */
   .btn-skip {
-    width: 46px; height: 46px; border-radius: 50%;
+    width: 54px; height: 54px; border-radius: 50%;
     background: radial-gradient(circle at 40% 35%, #0a1f38, #020a14);
     color: var(--muted); border: 1px solid var(--border2); cursor: pointer;
     display: flex; align-items: center; justify-content: center;
@@ -398,7 +411,7 @@
 
   /* PLAY button — big dial style */
   .btn-play {
-    width: 70px; height: 70px; border-radius: 50%;
+    width: 80px; height: 80px; border-radius: 50%;
     background: radial-gradient(circle at 40% 35%, #0a2a4a, #020a14);
     color: var(--accent); border: 2px solid var(--accent2); cursor: pointer;
     display: flex; align-items: center; justify-content: center;
@@ -935,6 +948,15 @@
       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
         <path d="M16 6h2v12h-2zm-2 6L5.5 6v12z"/>
       </svg>
+    </button>
+  </div>
+
+  <div style="display:flex; justify-content:center; margin-top:16px;">
+    <button class="btn-share" id="btnShare">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M18 16a3 3 0 0 0-2.03.8L8.9 12.7a3 3 0 0 0 0-1.4l7.07-4.1A3 3 0 1 0 14.5 4.5L7.43 8.6a3 3 0 1 0 0 6.8l7.07 4.1A3 3 0 1 0 18 16z"/>
+      </svg>
+      COMPARTIR APP
     </button>
   </div>
 </div>
@@ -1989,6 +2011,29 @@ setInterval(() => {
   const v = adActive ? 30 : (isPlaying ? 100 : 0);
   statVol.textContent = v;
 }, 200);
+
+// ── Botón Compartir ────────────────────────────────────────────
+document.getElementById('btnShare').addEventListener('click', async () => {
+  const shareData = {
+    title: 'InfoBlack Radio',
+    text: '🎙️ Escucha radio en vivo desde Linares, Chile — emisoras de todo el mundo, gratis.',
+    url: 'https://radio-infoblack.vercel.app/'
+  };
+  if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+    try { await navigator.share(shareData); } catch (e) {}
+  } else {
+    // Fallback: copiar URL al portapapeles
+    try {
+      await navigator.clipboard.writeText(shareData.url);
+      const btn = document.getElementById('btnShare');
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.2l-4.2-4.2-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg> ¡COPIADO!';
+      btn.style.color = 'var(--accent3)';
+      btn.style.borderColor = 'var(--accent3)';
+      setTimeout(() => { btn.innerHTML = orig; btn.style.color = ''; btn.style.borderColor = ''; }, 2000);
+    } catch (e) {}
+  }
+});
 </script>
 </body>
 </html>
