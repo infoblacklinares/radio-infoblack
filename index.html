@@ -1480,29 +1480,141 @@ function showLocalMusicMsg(msg) {
   }, 4000);
 }
 
-function addLocalTracks(fileList) {
+// ── IndexedDB para archivos individuales (persisten al recargar) ────
+const IFILES_DB_NAME  = 'ib_ifiles_db';
+const IFILES_STORE_NAME = 'files';
+
+function openIFilesDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(IFILES_DB_NAME, 1);
+    req.onupgradeneeded = () =>
+      req.result.createObjectStore(IFILES_STORE_NAME, { keyPath: 'id', autoIncrement: true });
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function saveFilesToIDB(files) {
+  const db = await openIFilesDB();
+  const existing = await new Promise((res, rej) => {
+    const tx = db.transaction(IFILES_STORE_NAME, 'readonly');
+    const req = tx.objectStore(IFILES_STORE_NAME).getAll();
+    req.onsuccess = () => res(req.result.map(r => r.name));
+    req.onerror = () => rej(req.error);
+  });
+  let saved = 0;
+  for (const file of files) {
+    if (existing.includes(file.name)) continue;
+    const data = await file.arrayBuffer();
+    await new Promise((res, rej) => {
+      const tx = db.transaction(IFILES_STORE_NAME, 'readwrite');
+      tx.objectStore(IFILES_STORE_NAME).add({ name: file.name, type: file.type || 'audio/mpeg', data });
+      tx.oncomplete = () => res();
+      tx.onerror = () => rej(tx.error);
+    });
+    saved++;
+  }
+  return saved;
+}
+async function getIFilesCount() {
+  const db = await openIFilesDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction(IFILES_STORE_NAME, 'readonly');
+    const req = tx.objectStore(IFILES_STORE_NAME).count();
+    req.onsuccess = () => res(req.result);
+    req.onerror = () => rej(req.error);
+  });
+}
+async function clearAllIFiles() {
+  const db = await openIFilesDB();
+  await new Promise((res, rej) => {
+    const tx = db.transaction(IFILES_STORE_NAME, 'readwrite');
+    tx.objectStore(IFILES_STORE_NAME).clear();
+    tx.oncomplete = () => res();
+    tx.onerror = () => rej(tx.error);
+  });
+  radioList.querySelectorAll('.radio-btn[data-ifile-id]').forEach(btn => {
+    URL.revokeObjectURL(btn.dataset.url);
+    btn.remove();
+  });
+  renderIFilesFooter(0);
+  showLocalMusicMsg('🗑️ Archivos eliminados del dispositivo.');
+}
+function renderIFilesFooter(count) {
+  let footer = document.getElementById('iFilesFooter');
+  if (count === 0) { if (footer) footer.remove(); return; }
+  if (!footer) {
+    footer = document.createElement('div');
+    footer.id = 'iFilesFooter';
+    footer.className = 'folder-row';
+    folderListUI.appendChild(footer);
+  }
+  footer.innerHTML = `<span class="folder-name">💾 ${count} archivo(s) guardado(s) en este dispositivo</span><button class="folder-btn" data-action="remove" title="Borrar archivos guardados">🗑️</button>`;
+  footer.querySelector('.folder-btn').addEventListener('click', async () => {
+    if (confirm('¿Borrar todos los archivos guardados de Mi Música?')) await clearAllIFiles();
+  });
+}
+async function autoLoadSavedIFiles() {
+  let records;
+  try {
+    const db = await openIFilesDB();
+    records = await new Promise((res, rej) => {
+      const tx = db.transaction(IFILES_STORE_NAME, 'readonly');
+      const req = tx.objectStore(IFILES_STORE_NAME).getAll();
+      req.onsuccess = () => res(req.result);
+      req.onerror = () => rej(req.error);
+    });
+  } catch (e) { return; }
+  if (!records.length) return;
+  records.forEach(r => {
+    const trackName = r.name.replace(/\.[^/.]+$/, '');
+    const already = Array.from(radioList.querySelectorAll('.radio-btn[data-cat="local"]'))
+      .some(b => b.dataset.name === trackName);
+    if (already) return;
+    const url = URL.createObjectURL(new Blob([r.data], { type: r.type }));
+    const btn = document.createElement('button');
+    btn.className = 'radio-btn';
+    btn.dataset.cat = 'local';
+    btn.dataset.url = url;
+    btn.dataset.name = trackName;
+    btn.dataset.ifileId = r.id;
+    btn.innerHTML = `<span class="radio-icon">🎵</span><div class="radio-info"><div class="radio-name">${trackName}</div><div class="radio-freq">💾 Guardado</div></div><span class="radio-check">✓</span>`;
+    radioList.appendChild(btn);
+  });
+  initRadioButtons();
+  initFavButtons();
+  renderIFilesFooter(records.length);
+}
+
+async function addLocalTracks(fileList) {
   const files = Array.from(fileList).filter(isAudioFile);
   if (files.length === 0) {
     showLocalMusicMsg('⚠ No se encontraron archivos de audio en la selección.');
     return;
   }
+  showLocalMusicMsg(`⏳ Guardando ${files.length} canción(es)...`);
+  let saved = 0;
+  try { saved = await saveFilesToIDB(files); } catch (e) {}
   files.forEach(file => {
-    const url = URL.createObjectURL(file);
     const name = file.name.replace(/\.[^/.]+$/, '');
+    const already = Array.from(radioList.querySelectorAll('.radio-btn[data-cat="local"]'))
+      .some(b => b.dataset.name === name);
+    if (already) return;
+    const url = URL.createObjectURL(file);
     const btn = document.createElement('button');
     btn.className = 'radio-btn';
     btn.dataset.cat = 'local';
     btn.dataset.url = url;
     btn.dataset.name = name;
-    btn.innerHTML = `<span class="radio-icon">🎵</span><div class="radio-info"><div class="radio-name">${name}</div><div class="radio-freq">Música local</div></div><span class="radio-check">✓</span>`;
+    btn.innerHTML = `<span class="radio-icon">🎵</span><div class="radio-info"><div class="radio-name">${name}</div><div class="radio-freq">💾 Guardado</div></div><span class="radio-check">✓</span>`;
     radioList.appendChild(btn);
   });
   initRadioButtons();
   initFavButtons();
-  // Cambiar a la pestaña "Mi Música" para mostrar las canciones recién agregadas
-  // sin que se mezclen con el resto de las emisoras en "TODAS"
   document.querySelector('.cat-tab[data-cat="local"]').click();
-  showLocalMusicMsg(`✓ Se agregaron ${files.length} canción(es). Nota: si recargas la página, deberás volver a seleccionarlas.`);
+  try { renderIFilesFooter(await getIFilesCount()); } catch (e) {}
+  showLocalMusicMsg(saved > 0
+    ? `✓ ${files.length} canción(es) guardadas. Se recordarán al recargar la página.`
+    : `✓ ${files.length} canción(es) (ya estaban guardadas).`);
 }
 
 btnLocalFiles.addEventListener('click', () => localFilesInput.click());
@@ -1669,6 +1781,7 @@ btnLocalFolder.addEventListener('click', async () => {
 localFolderInput.addEventListener('change', e => addLocalTracks(e.target.files));
 
 if (supportsFolderPicker) autoLoadSavedFolders();
+autoLoadSavedIFiles();
 
 // ── Reproducción aleatoria de Mi Música ────────────────────────────
 const SHUFFLE_KEY = 'ib_shuffle_local';
