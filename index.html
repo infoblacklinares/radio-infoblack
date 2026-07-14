@@ -1142,11 +1142,12 @@ function startRing() {
   ringId = setInterval(() => {
     ringSeconds--;
     updateRing();
-    if (ringSeconds <= 0) { clearInterval(ringId); triggerAd(); }
+    if (ringSeconds <= 0) { clearInterval(ringId); ringId = null; triggerAd(); }
   }, 1000);
 }
 function stopRing() {
   clearInterval(ringId);
+  ringId = null;
   adRingWrap.classList.remove('visible');
 }
 function updateRing() {
@@ -1241,15 +1242,16 @@ function play() {
   radioEl.src = currentUrl;
   radioEl.play().then(() => {
     isPlaying = true;
-    stopRing();
-    startRing();
+    if (!ringId) {
+      // Ring no activo: iniciar (primera vez o después de pausa manual/fin de ad)
+      startRing();
+      queue = shuffle(TRACKS); queueIdx = 0;
+      adAudioEl.src = queue[0].src;
+    }
     updateMediaSessionMeta();
     setMediaPlaybackState('playing');
     saveLastStation();
     markStationAlive(currentUrl);
-    // Pre-cargar primer track de publicidad
-    queue = shuffle(TRACKS); queueIdx = 0;
-    adAudioEl.src = queue[0].src;
   }).catch(() => {
     btnPlay.classList.remove('loading');
     setIcon(false);
@@ -1258,7 +1260,7 @@ function play() {
   });
 }
 
-function pause() {
+function pause(keepRing = false) {
   radioEl.pause();
   isPlaying = false;
   btnPlay.classList.remove('loading');
@@ -1266,7 +1268,7 @@ function pause() {
   setWave(false);
   trackSub.textContent = '■ STANDBY';
   liveLabel.textContent = currentCat === 'local' ? '◈ MI MÚSICA' : '◈ EN VIVO';
-  stopRing();
+  if (!keepRing) stopRing();
   setMediaPlaybackState('paused');
 }
 
@@ -1432,7 +1434,7 @@ function initRadioButtons() {
       currentCat  = btn.dataset.cat;
       trackTitle.textContent = currentName;
       seekWrap.classList.toggle('visible', currentCat === 'local');
-      pause();
+      pause(true); // keepRing=true: el contador de publi no se reinicia al cambiar pista
       setTimeout(play, 300);
     });
   });
