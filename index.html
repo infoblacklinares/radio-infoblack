@@ -255,6 +255,23 @@
 
   .custom-url-wrap { display: flex; flex-direction: column; gap: 6px; padding: 0 8px 10px; }
   .inp-label { font-size: 9px; color: var(--muted); font-family: 'Share Tech Mono', monospace; letter-spacing: 1px; }
+  .folder-list { display: flex; flex-direction: column; gap: 4px; }
+  .folder-row {
+    display: flex; align-items: center; gap: 8px;
+    background: #0a1320; border: 1px solid #0a2030; border-radius: 5px;
+    padding: 6px 8px;
+  }
+  .folder-name {
+    flex: 1; font-family: 'Rajdhani', sans-serif; font-size: 12px;
+    color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .folder-status { font-size: 9px; color: var(--muted); font-family: 'Share Tech Mono', monospace; }
+  .folder-btn {
+    background: transparent; border: none; cursor: pointer;
+    font-size: 14px; padding: 2px 5px; color: var(--muted); transition: color .15s;
+  }
+  .folder-btn:hover { color: var(--accent); }
+  .folder-btn[data-action="remove"]:hover { color: #ff3040; }
   .inp-row { display: flex; gap: 6px; }
   .inp {
     flex: 1; background: #020608; border: 1px solid #0a2030;
@@ -687,23 +704,6 @@
     <button class="radio-btn" data-cat="religion" data-url="https://stream.zeno.fm/obpvb99vbrhvv" data-name="Sion Emisora Chile">
       <span class="radio-icon">🙏</span><div class="radio-info"><div class="radio-name">Sion Emisora Chile</div><div class="radio-freq">Cristiana CL</div></div><span class="radio-check">✓</span>
     </button>
-      <span class="radio-check">✓</span>
-    </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/it0y9hw3enauv" data-name="Elgenero.com">
-      <span class="radio-icon">🎶</span>
-      <div class="radio-info"><div class="radio-name">Elgenero.com</div><div class="radio-freq">Urbano y trap</div></div>
-      <span class="radio-check">✓</span>
-    </button>
-    <button class="radio-btn" data-url="https://stream.zeno.fm/sgbpeccnfuhvv" data-name="Chile Latino">
-      <span class="radio-icon">🇨🇱</span>
-      <div class="radio-info"><div class="radio-name">Chile Latino</div><div class="radio-freq">Latino desde Chile</div></div>
-      <span class="radio-check">✓</span>
-    </button>
-    <button class="radio-btn" data-url="https://sonicpanel.cloudstreaming.eu/9966/" data-name="Radio Bknes Juvenil">
-      <span class="radio-icon">🔊</span>
-      <div class="radio-info"><div class="radio-name">Radio Bknes Juvenil</div><div class="radio-freq">La juvenil de Chile</div></div>
-      <span class="radio-check">✓</span>
-    </button>
 
     <!-- 🇨🇱 CHILE - nuevas -->
     <button class="radio-btn" data-cat="chile" data-url="https://stream.zeno.fm/hdtuuldvh7pvv" data-name="Sintonía 23 en Vivo">
@@ -875,6 +875,7 @@
       <button class="btn-sm" id="btnLocalFiles">ELEGIR ARCHIVOS</button>
       <button class="btn-sm" id="btnShuffleLocal" title="Reproducir Mi Música en orden aleatorio">🔀 ALEATORIO</button>
     </div>
+    <div class="folder-list" id="folderListUI"></div>
   </div>
 
   <div class="custom-url-wrap">
@@ -1037,6 +1038,7 @@ const btnShuffleLocal = document.getElementById('btnShuffleLocal');
 const localFolderInput = document.getElementById('localFolderInput');
 const localFilesInput  = document.getElementById('localFilesInput');
 const adWaveEl    = document.getElementById('adWave');
+const liveLabel   = document.getElementById('liveLabel');
 
 let isPlaying    = false;
 let adActive     = false;
@@ -1232,7 +1234,8 @@ function toggleAdPause() {
 
 // ── Radio play/pause ────────────────────────────────────────────
 function play() {
-  trackSub.textContent = '◌ CONECTANDO...';
+  trackSub.textContent = currentCat === 'local' ? '◌ CARGANDO...' : '◌ CONECTANDO...';
+  liveLabel.textContent = currentCat === 'local' ? '◈ MI MÚSICA' : '◈ EN VIVO';
   btnPlay.classList.add('loading');
   setIcon(true);
   radioEl.src = currentUrl;
@@ -1262,6 +1265,7 @@ function pause() {
   setIcon(false);
   setWave(false);
   trackSub.textContent = '■ STANDBY';
+  liveLabel.textContent = currentCat === 'local' ? '◈ MI MÚSICA' : '◈ EN VIVO';
   stopRing();
   setMediaPlaybackState('paused');
 }
@@ -1278,7 +1282,13 @@ radioEl.addEventListener('playing', () => {
   btnPlay.classList.remove('loading');
   setIcon(true);
   setWave(true);
-  trackSub.textContent = '● TRANSMITIENDO EN VIVO';
+  if (currentCat === 'local') {
+    trackSub.textContent = '▶ REPRODUCIENDO';
+    liveLabel.textContent = '◈ MI MÚSICA';
+  } else {
+    trackSub.textContent = '● TRANSMITIENDO EN VIVO';
+    liveLabel.textContent = '◈ EN VIVO';
+  }
 });
 
 // ── Barra de progreso (avance/retroceso en Mi Música) ──────────────
@@ -1471,10 +1481,170 @@ function addLocalTracks(fileList) {
   showLocalMusicMsg(`✓ Se agregaron ${files.length} canción(es). Nota: si recargas la página, deberás volver a seleccionarlas.`);
 }
 
-btnLocalFolder.addEventListener('click', () => localFolderInput.click());
 btnLocalFiles.addEventListener('click', () => localFilesInput.click());
-localFolderInput.addEventListener('change', e => addLocalTracks(e.target.files));
 localFilesInput.addEventListener('change', e => addLocalTracks(e.target.files));
+
+// ── Carpetas persistentes (sobreviven a recargar la página) ────────
+const FOLDER_DB_NAME = 'ib_folders_db';
+const FOLDER_STORE = 'folders';
+const folderListUI = document.getElementById('folderListUI');
+const supportsFolderPicker = 'showDirectoryPicker' in window;
+
+function openFolderDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(FOLDER_DB_NAME, 1);
+    req.onupgradeneeded = () => req.result.createObjectStore(FOLDER_STORE, { keyPath: 'id', autoIncrement: true });
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function saveFolderHandle(name, handle) {
+  const db = await openFolderDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(FOLDER_STORE, 'readwrite');
+    const req = tx.objectStore(FOLDER_STORE).add({ name, handle });
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function getAllFolders() {
+  const db = await openFolderDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(FOLDER_STORE, 'readonly');
+    const req = tx.objectStore(FOLDER_STORE).getAll();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function deleteFolderRecord(id) {
+  const db = await openFolderDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(FOLDER_STORE, 'readwrite');
+    tx.objectStore(FOLDER_STORE).delete(id);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+async function scanDirectoryHandle(dirHandle) {
+  const files = [];
+  async function walk(handle) {
+    for await (const entry of handle.values()) {
+      if (entry.kind === 'file') {
+        const file = await entry.getFile();
+        if (isAudioFile(file)) files.push(file);
+      } else if (entry.kind === 'directory') {
+        await walk(entry);
+      }
+    }
+  }
+  await walk(dirHandle);
+  return files;
+}
+
+async function loadFolderTracks(folderId, name, handle) {
+  const files = await scanDirectoryHandle(handle);
+  // Quitar pistas anteriores de esta carpeta (evita duplicar al actualizar)
+  radioList.querySelectorAll(`.radio-btn[data-folder-id="${folderId}"]`).forEach(b => {
+    URL.revokeObjectURL(b.dataset.url);
+    b.remove();
+  });
+  files.forEach(file => {
+    const url = URL.createObjectURL(file);
+    const trackName = file.name.replace(/\.[^/.]+$/, '');
+    const btn = document.createElement('button');
+    btn.className = 'radio-btn';
+    btn.dataset.cat = 'local';
+    btn.dataset.url = url;
+    btn.dataset.name = trackName;
+    btn.dataset.folderId = folderId;
+    btn.innerHTML = `<span class="radio-icon">🎵</span><div class="radio-info"><div class="radio-name">${trackName}</div><div class="radio-freq">📁 ${name}</div></div><span class="radio-check">✓</span>`;
+    radioList.appendChild(btn);
+  });
+  initRadioButtons();
+  initFavButtons();
+  return files.length;
+}
+
+async function renderFolderList() {
+  const folders = await getAllFolders();
+  folderListUI.innerHTML = '';
+  for (const f of folders) {
+    let perm = 'prompt';
+    try { perm = await f.handle.queryPermission({ mode: 'read' }); } catch (e) {}
+    const row = document.createElement('div');
+    row.className = 'folder-row';
+    const actionBtn = perm === 'granted'
+      ? `<button class="folder-btn" data-action="refresh" data-id="${f.id}" title="Actualizar carpeta">🔄</button>`
+      : `<button class="folder-btn" data-action="reconnect" data-id="${f.id}" title="Reconectar (volver a dar permiso)">🔓</button>`;
+    row.innerHTML = `<span class="folder-name">📁 ${f.name}</span>${actionBtn}<button class="folder-btn" data-action="remove" data-id="${f.id}" title="Quitar carpeta">✕</button>`;
+    folderListUI.appendChild(row);
+  }
+  folderListUI.querySelectorAll('.folder-btn').forEach(b => {
+    b.addEventListener('click', async () => {
+      const id = parseInt(b.dataset.id);
+      const folder = folders.find(f => f.id === id);
+      if (!folder) return;
+      if (b.dataset.action === 'refresh') {
+        showLocalMusicMsg(`⏳ Actualizando "${folder.name}"...`);
+        const n = await loadFolderTracks(folder.id, folder.name, folder.handle);
+        showLocalMusicMsg(`✓ "${folder.name}": ${n} canción(es) actualizadas.`);
+      } else if (b.dataset.action === 'reconnect') {
+        try {
+          const req = await folder.handle.requestPermission({ mode: 'read' });
+          if (req === 'granted') {
+            const n = await loadFolderTracks(folder.id, folder.name, folder.handle);
+            showLocalMusicMsg(`✓ "${folder.name}" reconectada: ${n} canción(es).`);
+            renderFolderList();
+          } else {
+            showLocalMusicMsg('⚠ Permiso denegado.');
+          }
+        } catch (e) { showLocalMusicMsg('⚠ No se pudo reconectar la carpeta.'); }
+      } else if (b.dataset.action === 'remove') {
+        radioList.querySelectorAll(`.radio-btn[data-folder-id="${id}"]`).forEach(btn => {
+          URL.revokeObjectURL(btn.dataset.url);
+          btn.remove();
+        });
+        await deleteFolderRecord(id);
+        showLocalMusicMsg(`Carpeta "${folder.name}" quitada.`);
+        renderFolderList();
+      }
+    });
+  });
+}
+
+async function autoLoadSavedFolders() {
+  const folders = await getAllFolders();
+  for (const f of folders) {
+    try {
+      const perm = await f.handle.queryPermission({ mode: 'read' });
+      if (perm === 'granted') await loadFolderTracks(f.id, f.name, f.handle);
+    } catch (e) {}
+  }
+  renderFolderList();
+}
+
+btnLocalFolder.addEventListener('click', async () => {
+  if (!supportsFolderPicker) {
+    showLocalMusicMsg('⚠ Tu navegador no soporta carpetas persistentes. Usando selector simple.');
+    localFolderInput.click();
+    return;
+  }
+  try {
+    const handle = await window.showDirectoryPicker();
+    showLocalMusicMsg(`⏳ Leyendo "${handle.name}"...`);
+    const id = await saveFolderHandle(handle.name, handle);
+    const n = await loadFolderTracks(id, handle.name, handle);
+    renderFolderList();
+    document.querySelector('.cat-tab[data-cat="local"]').click();
+    showLocalMusicMsg(`✓ Carpeta "${handle.name}" agregada: ${n} canción(es). Se recordará la próxima vez.`);
+  } catch (e) {
+    if (e.name !== 'AbortError') showLocalMusicMsg('⚠ No se pudo abrir la carpeta.');
+  }
+});
+localFolderInput.addEventListener('change', e => addLocalTracks(e.target.files));
+
+if (supportsFolderPicker) autoLoadSavedFolders();
 
 // ── Reproducción aleatoria de Mi Música ────────────────────────────
 const SHUFFLE_KEY = 'ib_shuffle_local';
