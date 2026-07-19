@@ -1493,7 +1493,7 @@ function openIFilesDB() {
     req.onerror = () => reject(req.error);
   });
 }
-async function saveFilesToIDB(files) {
+async function saveFilesToIDB(files, onProgress) {
   const db = await openIFilesDB();
   const existing = await new Promise((res, rej) => {
     const tx = db.transaction(IFILES_STORE_NAME, 'readonly');
@@ -1502,8 +1502,11 @@ async function saveFilesToIDB(files) {
     req.onerror = () => rej(req.error);
   });
   let saved = 0;
-  for (const file of files) {
-    if (existing.includes(file.name)) continue;
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    // Cede el event loop entre cada archivo para que la UI no se congele
+    await new Promise(r => setTimeout(r, 0));
+    if (existing.includes(file.name)) { onProgress && onProgress(i + 1, files.length); continue; }
     const data = await file.arrayBuffer();
     await new Promise((res, rej) => {
       const tx = db.transaction(IFILES_STORE_NAME, 'readwrite');
@@ -1512,6 +1515,7 @@ async function saveFilesToIDB(files) {
       tx.onerror = () => rej(tx.error);
     });
     saved++;
+    onProgress && onProgress(i + 1, files.length);
   }
   return saved;
 }
@@ -1591,9 +1595,9 @@ async function addLocalTracks(fileList) {
     showLocalMusicMsg('⚠ No se encontraron archivos de audio en la selección.');
     return;
   }
-  showLocalMusicMsg(`⏳ Guardando ${files.length} canción(es)...`);
-  let saved = 0;
-  try { saved = await saveFilesToIDB(files); } catch (e) {}
+
+  // ① Agregar a la UI de inmediato — sin esperar IDB (no hay freeze)
+  const newBtns = [];
   files.forEach(file => {
     const name = file.name.replace(/\.[^/.]+$/, '');
     const already = Array.from(radioList.querySelectorAll('.radio-btn[data-cat="local"]'))
@@ -1605,16 +1609,31 @@ async function addLocalTracks(fileList) {
     btn.dataset.cat = 'local';
     btn.dataset.url = url;
     btn.dataset.name = name;
-    btn.innerHTML = `<span class="radio-icon">🎵</span><div class="radio-info"><div class="radio-name">${name}</div><div class="radio-freq">💾 Guardado</div></div><span class="radio-check">✓</span>`;
+    btn.dataset.ifileName = file.name;
+    btn.innerHTML = `<span class="radio-icon">🎵</span><div class="radio-info"><div class="radio-name">${name}</div><div class="radio-freq">⏳ Guardando...</div></div><span class="radio-check">✓</span>`;
     radioList.appendChild(btn);
+    newBtns.push(btn);
   });
   initRadioButtons();
   initFavButtons();
   document.querySelector('.cat-tab[data-cat="local"]').click();
-  try { renderIFilesFooter(await getIFilesCount()); } catch (e) {}
-  showLocalMusicMsg(saved > 0
-    ? `✓ ${files.length} canción(es) guardadas. Se recordarán al recargar la página.`
-    : `✓ ${files.length} canción(es) (ya estaban guardadas).`);
+  showLocalMusicMsg(`✓ ${newBtns.length} canción(es) añadidas. Guardando en dispositivo...`);
+
+  // ② Guardar en IDB en background, un archivo a la vez, con progreso
+  try {
+    await saveFilesToIDB(files, (current, total) => {
+      showLocalMusicMsg(`⏳ Guardando ${current} de ${total}...`);
+      // Actualizar etiqueta del botón correspondiente
+      const file = files[current - 1];
+      if (!file) return;
+      const btn = newBtns.find(b => b.dataset.ifileName === file.name);
+      if (btn) { const f = btn.querySelector('.radio-freq'); if (f) f.textContent = '💾 Guardado'; }
+    });
+    try { renderIFilesFooter(await getIFilesCount()); } catch (e) {}
+    showLocalMusicMsg(`✓ Todo guardado. Las canciones se cargarán solas al recargar la página.`);
+  } catch (e) {
+    showLocalMusicMsg('⚠ Algunas canciones no se pudieron guardar (espacio insuficiente?).');
+  }
 }
 
 btnLocalFiles.addEventListener('click', () => localFilesInput.click());
