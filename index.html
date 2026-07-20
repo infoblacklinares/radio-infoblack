@@ -1069,6 +1069,9 @@ let trackIdx     = 0;
 let ringId       = null;
 let ringSeconds  = 0;
 let ringTotal    = 0;
+let reconnectId    = null;
+let reconnectCount = 0;
+const MAX_RECONNECTS = 3;
 
 let currentUrl   = 'https://mdstrm.com/audio/637f68ddce4b1208597d8a86/icecast.audio';
 let currentName  = 'Radio Carolina';
@@ -1264,6 +1267,7 @@ function play() {
   radioEl.src = currentUrl;
   radioEl.play().then(() => {
     isPlaying = true;
+    reconnectCount = 0; reconnectId = null;
     if (!ringId) {
       // Ring no activo: iniciar (primera vez o después de pausa manual/fin de ad)
       startRing();
@@ -1283,6 +1287,7 @@ function play() {
 }
 
 function pause(keepRing = false) {
+  clearTimeout(reconnectId); reconnectId = null; reconnectCount = 0;
   radioEl.pause();
   isPlaying = false;
   btnPlay.classList.remove('loading');
@@ -1899,12 +1904,17 @@ btnCustom.addEventListener('click', () => {
 });
 customUrl.addEventListener('keydown', e => { if (e.key === 'Enter') btnCustom.click(); });
 
-// Reconectar si se corta el stream
+// Reconectar si se corta el stream (máx 3 intentos, se cancela al cambiar estación)
 radioEl.addEventListener('error', () => {
-  if (isPlaying && !adActive) {
-    trackSub.textContent = '⚠ RECONECTANDO...';
-    setTimeout(play, 3000);
+  if (!isPlaying || adActive) return;
+  if (reconnectCount >= MAX_RECONNECTS) {
+    trackSub.textContent = '⚠ SIN SEÑAL · ELIGE OTRA RADIO';
+    setIcon(false); isPlaying = false; stopRing();
+    return;
   }
+  reconnectCount++;
+  trackSub.textContent = `⚠ RECONECTANDO... (${reconnectCount}/${MAX_RECONNECTS})`;
+  reconnectId = setTimeout(play, 4000);
 });
 
 // Wake Lock (evitar que la pantalla se duerma)
